@@ -4,26 +4,27 @@ using UnityEngine;
 public class Luchador : MonoBehaviour
 {
     public LuchadorData luchadorData; // El ScriptableObject que contiene los datos del luchador
+    public ControladorTorneo controladorTorneo; // Referencia al controlador del torneo
     private float vidaActual;
     public Rigidbody rb;
-
-    // Posición inicial para regresar después del ataque/esquiva
+    public Vector3 posicionAtaque; // Posición asignada para el ataque
     private Vector3 posicionInicial;
+    private Vector3 escalaOriginal;
     private bool estaAtacando = false;
 
     void Start()
     {
-        // Inicializa la vida y posición
         vidaActual = luchadorData.vidaMaxima;
         posicionInicial = transform.position;
+        escalaOriginal = transform.localScale; // Almacenar la escala original
     }
 
     // Función que inicia el ataque
-    public void Atacar(Luchador oponente)
+    public IEnumerator Atacar(Luchador oponente)
     {
         if (!estaAtacando)
         {
-            StartCoroutine(RealizarAtaque(oponente));
+            yield return StartCoroutine(RealizarAtaque(oponente));
         }
     }
 
@@ -32,23 +33,34 @@ public class Luchador : MonoBehaviour
     {
         estaAtacando = true;
 
-        // Movimiento hacia el oponente
-        Vector3 direccionAtaque = (oponente.transform.position - transform.position).normalized;
-        Vector3 posicionObjetivo = oponente.transform.position - direccionAtaque * 1.5f; // Un poco antes del contacto
+        // Movimiento hacia la posición de ataque
         float tiempoMovimiento = 0.5f;
-        yield return StartCoroutine(MoverHacia(posicionObjetivo, tiempoMovimiento));
+        yield return StartCoroutine(MoverHacia(posicionAtaque, tiempoMovimiento));
+
+        // Mirar hacia el oponente
+        transform.LookAt(oponente.transform.position);
+
+        // Mostrar evento de ataque
+        controladorTorneo.MostrarEvento($"{luchadorData.nombre} ataca a {oponente.luchadorData.nombre}");
+
+        // Iniciar deformación durante el ataque
+        yield return StartCoroutine(DeformarCubo(true, 0.2f));
 
         // Aplicar la fuerza al oponente
+        Vector3 direccionAtaque = (oponente.transform.position - transform.position).normalized;
         oponente.RecibirGolpe(direccionAtaque * luchadorData.fuerza);
+
+        // Revertir deformación al regresar
+        yield return StartCoroutine(DeformarCubo(false, 0.2f));
 
         // Regresar a la posición inicial
         yield return new WaitForSeconds(0.5f);
+        transform.LookAt(posicionInicial); // Mirar hacia la posición inicial
         yield return StartCoroutine(MoverHacia(posicionInicial, tiempoMovimiento));
 
         estaAtacando = false;
     }
 
-    // Función para mover al luchador hacia una posición
     private IEnumerator MoverHacia(Vector3 objetivo, float tiempo)
     {
         Vector3 inicio = transform.position;
@@ -64,16 +76,21 @@ public class Luchador : MonoBehaviour
         transform.position = objetivo;
     }
 
-    // Función que recibe el golpe y aplica una fuerza al luchador
     public void RecibirGolpe(Vector3 fuerzaGolpe)
     {
-        rb.AddForce(fuerzaGolpe, ForceMode.Impulse);
-        vidaActual -= fuerzaGolpe.magnitude; // Ajustar vida según la magnitud de la fuerza
+        float escalaFuerza = 0.05f; 
+        rb.AddForce(fuerzaGolpe * escalaFuerza, ForceMode.Impulse);
+
+        float daño = fuerzaGolpe.magnitude * escalaFuerza;
+        vidaActual -= daño;
+
+        // Mostrar evento de daño recibido
+        controladorTorneo.MostrarEvento($"{luchadorData.nombre} recibe {daño:F1} de daño. Vida restante: {vidaActual:F1}");
 
         if (vidaActual <= 0)
         {
             vidaActual = 0;
-            Debug.Log(luchadorData.nombre + " ha sido derrotado!");
+            controladorTorneo.MostrarEvento($"{luchadorData.nombre} ha sido derrotado!");
         }
     }
 
@@ -82,7 +99,33 @@ public class Luchador : MonoBehaviour
         return vidaActual > 0;
     }
 
-    // Función para esquivar el ataque
+    private IEnumerator DeformarCubo(bool estirando, float duracion)
+    {
+        Vector3 escalaObjetivo;
+
+        if (estirando)
+        {
+            escalaObjetivo = new Vector3(escalaOriginal.x, escalaOriginal.y, escalaOriginal.z * 1.5f);
+        }
+        else
+        {
+            escalaObjetivo = escalaOriginal;
+        }
+
+        Vector3 escalaInicial = transform.localScale;
+        float tiempoTranscurrido = 0f;
+
+        while (tiempoTranscurrido < duracion)
+        {
+            transform.localScale = Vector3.Lerp(escalaInicial, escalaObjetivo, tiempoTranscurrido / duracion);
+            tiempoTranscurrido += Time.deltaTime;
+            yield return null;
+        }
+
+        transform.localScale = escalaObjetivo;
+    }
+
+    // Opcional: Método para esquivar (sin cambios)
     public void Esquivar()
     {
         if (!estaAtacando)
@@ -91,18 +134,15 @@ public class Luchador : MonoBehaviour
         }
     }
 
-    // Corrutina para la esquiva
     private IEnumerator RealizarEsquiva()
     {
         estaAtacando = true;
 
-        // Moverse hacia un lado para esquivar
-        Vector3 direccionEsquiva = Vector3.right * 2f; // Puedes cambiar la dirección de la esquiva
+        Vector3 direccionEsquiva = Vector3.right * 2f;
         Vector3 posicionObjetivo = transform.position + direccionEsquiva;
         float tiempoMovimiento = 0.3f;
         yield return StartCoroutine(MoverHacia(posicionObjetivo, tiempoMovimiento));
 
-        // Volver a la posición original después de esquivar
         yield return new WaitForSeconds(0.5f);
         yield return StartCoroutine(MoverHacia(posicionInicial, tiempoMovimiento));
 

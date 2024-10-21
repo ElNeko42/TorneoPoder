@@ -30,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 8433681021407856287}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -25.3, y: 4.87, z: 6.744781}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 10, y: 10, z: 10}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -119,11 +119,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa3b377fa1a918847827ffc219698fde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nombre: VEGETA
-  fuerza: 72
-  velocidad: 77
-  resistencia: 45
-  vida: 100
+  luchadorData: {fileID: 0}
   rb: {fileID: 3383441645479605256}
 --- !u!54 &3383441645479605256
 Rigidbody:

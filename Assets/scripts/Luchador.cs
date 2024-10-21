@@ -3,11 +3,8 @@ using UnityEngine;
 
 public class Luchador : MonoBehaviour
 {
-    public string nombre;
-    [Range(0, 100)] public int fuerza;
-    [Range(0, 100)] public int velocidad;
-    [Range(0, 100)] public int resistencia;
-    public float vida = 100f;
+    public LuchadorData luchadorData; // El ScriptableObject que contiene los datos del luchador
+    private float vidaActual;
     public Rigidbody rb;
 
     // Posición inicial para regresar después del ataque/esquiva
@@ -16,7 +13,8 @@ public class Luchador : MonoBehaviour
 
     void Start()
     {
-        // Guardamos la posición inicial del luchador
+        // Inicializa la vida y posición
+        vidaActual = luchadorData.vidaMaxima;
         posicionInicial = transform.position;
     }
 
@@ -41,7 +39,7 @@ public class Luchador : MonoBehaviour
         yield return StartCoroutine(MoverHacia(posicionObjetivo, tiempoMovimiento));
 
         // Aplicar la fuerza al oponente
-        oponente.RecibirGolpe(direccionAtaque * fuerza);
+        oponente.RecibirGolpe(direccionAtaque * luchadorData.fuerza);
 
         // Regresar a la posición inicial
         yield return new WaitForSeconds(0.5f);
@@ -70,6 +68,18 @@ public class Luchador : MonoBehaviour
     public void RecibirGolpe(Vector3 fuerzaGolpe)
     {
         rb.AddForce(fuerzaGolpe, ForceMode.Impulse);
+        vidaActual -= fuerzaGolpe.magnitude; // Ajustar vida según la magnitud de la fuerza
+
+        if (vidaActual <= 0)
+        {
+            vidaActual = 0;
+            Debug.Log(luchadorData.nombre + " ha sido derrotado!");
+        }
+    }
+
+    public bool EstaVivo()
+    {
+        return vidaActual > 0;
     }
 
     // Función para esquivar el ataque

@@ -937,6 +937,8 @@ MonoBehaviour:
   todosLuchadores:
   - {fileID: 11400000, guid: 5ccdd86d88f3c4249a5506352a629f50, type: 2}
   - {fileID: 11400000, guid: 01180c5df5530844287cb19dea94af95, type: 2}
+  - {fileID: 11400000, guid: d25ffdee8bf78f44cbed7ee10b1eaf05, type: 2}
+  - {fileID: 11400000, guid: 67089adc8814d7e428aef74dc3448b48, type: 2}
   respawnPoints:
   - {fileID: 1758330119}
   - {fileID: 1529625651}
@@ -1053,13 +1055,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1529625650}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -25.3, y: 4.87, z: 6.744781}
   m_LocalScale: {x: 10, y: 10, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1758330118
 GameObject:
   m_ObjectHideFlags: 0
@@ -1084,13 +1086,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1758330118}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 25.79, y: 4.87, z: 6.744781}
   m_LocalScale: {x: 10, y: 10, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

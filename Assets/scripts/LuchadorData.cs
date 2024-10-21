@@ -4,8 +4,9 @@ using UnityEngine;
 public class LuchadorData : ScriptableObject
 {
     public string nombre;
-    [Range(0, 100)] public int fuerza;
-    [Range(0, 100)] public int velocidad;
-    [Range(0, 100)] public int resistencia;
+    [Range(0, 100)] public float fuerza;
+    [Range(0, 100)] public float velocidad;
+    [Range(0, 100)] public float resistencia;
     public float vidaMaxima = 100f;
+    public Texture2D imagen; 
 }

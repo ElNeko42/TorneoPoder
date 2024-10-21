@@ -11,12 +11,22 @@ public class Luchador : MonoBehaviour
     private Vector3 posicionInicial;
     private Vector3 escalaOriginal;
     private bool estaAtacando = false;
+    private bool estaDeformando = false;
 
     void Start()
     {
         vidaActual = luchadorData.vidaMaxima;
         posicionInicial = transform.position;
         escalaOriginal = transform.localScale; // Almacenar la escala original
+
+        // Asignar la imagen al material del cubo
+        Renderer renderer = GetComponent<Renderer>();
+        if (renderer != null && luchadorData.imagen != null)
+        {
+            // Crear una instancia del material para evitar modificar el material original
+            renderer.material = new Material(renderer.material);
+            renderer.material.mainTexture = luchadorData.imagen;
+        }
     }
 
     // Función que inicia el ataque
@@ -46,9 +56,11 @@ public class Luchador : MonoBehaviour
         // Iniciar deformación durante el ataque
         yield return StartCoroutine(DeformarCubo(true, 0.2f));
 
-        // Aplicar la fuerza al oponente
+        // Calcular la dirección del ataque
         Vector3 direccionAtaque = (oponente.transform.position - transform.position).normalized;
-        oponente.RecibirGolpe(direccionAtaque * luchadorData.fuerza);
+
+        // Aplicar el ataque al oponente con la dirección
+        oponente.RecibirGolpe(luchadorData.fuerza, direccionAtaque);
 
         // Revertir deformación al regresar
         yield return StartCoroutine(DeformarCubo(false, 0.2f));
@@ -76,13 +88,29 @@ public class Luchador : MonoBehaviour
         transform.position = objetivo;
     }
 
-    public void RecibirGolpe(Vector3 fuerzaGolpe)
+    public void RecibirGolpe(float ataqueAtacante, Vector3 direccionAtaque)
     {
-        float escalaFuerza = 0.05f; 
-        rb.AddForce(fuerzaGolpe * escalaFuerza, ForceMode.Impulse);
+        // Determinar si el luchador esquiva el ataque
+        float probabilidadEsquiva = 0.2f; // 20%
+        if (Random.value <= probabilidadEsquiva)
+        {
+            // Esquiva el ataque
+            Esquivar();
+            controladorTorneo.MostrarEvento($"{luchadorData.nombre} ha esquivado el ataque!");
+            return; // No aplicar daño ni fuerza
+        }
 
-        float daño = fuerzaGolpe.magnitude * escalaFuerza;
+        // Calcular el daño basado en el ataque y la resistencia
+        float daño = Mathf.Max(0, ataqueAtacante - luchadorData.resistencia);
+
+        if (luchadorData.resistencia > ataqueAtacante)
+        {
+            daño = ataqueAtacante * 0.1f; // Solo el 10% del ataque si la defensa es mayor
+        }
+
+        // Aplicar el daño a la salud
         vidaActual -= daño;
+        vidaActual = Mathf.Max(0, vidaActual); // Asegurarse de que la salud no sea negativa
 
         // Mostrar evento de daño recibido
         controladorTorneo.MostrarEvento($"{luchadorData.nombre} recibe {daño:F1} de daño. Vida restante: {vidaActual:F1}");
@@ -92,6 +120,10 @@ public class Luchador : MonoBehaviour
             vidaActual = 0;
             controladorTorneo.MostrarEvento($"{luchadorData.nombre} ha sido derrotado!");
         }
+
+        // Aplicar el empuje utilizando Rigidbody.AddForce
+        Vector3 fuerzaPush = direccionAtaque * luchadorData.fuerza * 0.5f; // Ajusta el multiplicador según sea necesario
+        rb.AddForce(fuerzaPush, ForceMode.Impulse);
     }
 
     public bool EstaVivo()
@@ -101,6 +133,10 @@ public class Luchador : MonoBehaviour
 
     private IEnumerator DeformarCubo(bool estirando, float duracion)
     {
+        if (estaDeformando) yield break; // Evitar deformaciones superpuestas
+
+        estaDeformando = true;
+
         Vector3 escalaObjetivo;
 
         if (estirando)
@@ -112,17 +148,18 @@ public class Luchador : MonoBehaviour
             escalaObjetivo = escalaOriginal;
         }
 
-        Vector3 escalaInicial = transform.localScale;
+        Vector3 escalaInicialDeformada = transform.localScale;
         float tiempoTranscurrido = 0f;
 
         while (tiempoTranscurrido < duracion)
         {
-            transform.localScale = Vector3.Lerp(escalaInicial, escalaObjetivo, tiempoTranscurrido / duracion);
+            transform.localScale = Vector3.Lerp(escalaInicialDeformada, escalaObjetivo, tiempoTranscurrido / duracion);
             tiempoTranscurrido += Time.deltaTime;
             yield return null;
         }
 
         transform.localScale = escalaObjetivo;
+        estaDeformando = false;
     }
 
     // Opcional: Método para esquivar (sin cambios)
@@ -138,7 +175,7 @@ public class Luchador : MonoBehaviour
     {
         estaAtacando = true;
 
-        Vector3 direccionEsquiva = Vector3.right * 2f;
+        Vector3 direccionEsquiva = Vector3.forward * -15f;
         Vector3 posicionObjetivo = transform.position + direccionEsquiva;
         float tiempoMovimiento = 0.3f;
         yield return StartCoroutine(MoverHacia(posicionObjetivo, tiempoMovimiento));

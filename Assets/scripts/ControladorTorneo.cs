@@ -49,7 +49,7 @@ public class ControladorTorneo : MonoBehaviour
                 else
                 {
                     luchadoresRestantes.Add(par.Item1);
-                    textoCombate.text = par.Item1.nombre + " avanza automáticamente!";
+                    MostrarEvento($"{par.Item1.nombre} avanza automáticamente!");
                     yield return new WaitForSeconds(2f);
                 }
             }
@@ -91,12 +91,14 @@ public class ControladorTorneo : MonoBehaviour
 
     private IEnumerator PrepararCombate(LuchadorData luchador1Data, LuchadorData luchador2Data)
     {
+        // Instanciar los luchadores en los puntos de respawn
         GameObject luchadorObj1 = Instantiate(luchadorPrefab, respawnPoints[0].position, Quaternion.identity);
         GameObject luchadorObj2 = Instantiate(luchadorPrefab, respawnPoints[1].position, Quaternion.identity);
 
         Luchador luchadorInstancia1 = luchadorObj1.GetComponent<Luchador>();
         Luchador luchadorInstancia2 = luchadorObj2.GetComponent<Luchador>();
 
+        // Asignarles los datos del ScriptableObject
         luchadorInstancia1.luchadorData = luchador1Data;
         luchadorInstancia2.luchadorData = luchador2Data;
 
@@ -110,7 +112,7 @@ public class ControladorTorneo : MonoBehaviour
 
         yield return new WaitForSeconds(2f);
 
-        // Determinar quién ataca primero
+        // Determinar quién ataca primero basado en la velocidad
         bool turnoLuchador1 = luchador1Data.velocidad >= luchador2Data.velocidad;
 
         // Ciclo de combate
@@ -118,28 +120,38 @@ public class ControladorTorneo : MonoBehaviour
         {
             if (turnoLuchador1)
             {
+                // Luchador 1 ataca
                 yield return StartCoroutine(luchadorInstancia1.Atacar(luchadorInstancia2));
             }
             else
             {
+                // Luchador 2 ataca
                 yield return StartCoroutine(luchadorInstancia2.Atacar(luchadorInstancia1));
             }
 
+            // Cambiar de turno
             turnoLuchador1 = !turnoLuchador1;
 
+            // Esperar un tiempo antes del siguiente ataque
             yield return new WaitForSeconds(1f);
         }
 
+        // Determinar el ganador y mostrar mensaje
         if (!luchadorInstancia1.EstaVivo())
         {
             luchadoresRestantes.Add(luchador2Data);
+            MostrarEvento($"{luchador2Data.nombre} avanza al siguiente round!");
         }
         else
         {
             luchadoresRestantes.Add(luchador1Data);
+            MostrarEvento($"{luchador1Data.nombre} avanza al siguiente round!");
         }
 
+        // Destruir los objetos una vez que termina la pelea
         Destroy(luchadorObj1);
         Destroy(luchadorObj2);
+
+        yield return null;
     }
 }

@@ -1,3 +1,4 @@
+// Luchador.cs
 using System.Collections;
 using UnityEngine;
 
@@ -5,7 +6,7 @@ public class Luchador : MonoBehaviour
 {
     public LuchadorData luchadorData; // El ScriptableObject que contiene los datos del luchador
     public ControladorTorneo controladorTorneo; // Referencia al controlador del torneo
-    private float vidaActual;
+    public float vidaActual;
     public Rigidbody rb;
     public Vector3 posicionAtaque; // Posición asignada para el ataque
     private Vector3 posicionInicial;
@@ -71,6 +72,9 @@ public class Luchador : MonoBehaviour
         yield return StartCoroutine(MoverHacia(posicionInicial, tiempoMovimiento));
 
         estaAtacando = false;
+
+        // Actualizar la barra de vida después de atacar (si es necesario)
+        controladorTorneo.ActualizarBarraVida(this);
     }
 
     private IEnumerator MoverHacia(Vector3 objetivo, float tiempo)
@@ -107,7 +111,7 @@ public class Luchador : MonoBehaviour
         {
             daño = ataqueAtacante * 0.1f; // Solo el 10% del ataque si la defensa es mayor
         }
-
+        daño = 100;
         // Aplicar el daño a la salud
         vidaActual -= daño;
         vidaActual = Mathf.Max(0, vidaActual); // Asegurarse de que la salud no sea negativa
@@ -124,6 +128,9 @@ public class Luchador : MonoBehaviour
         // Aplicar el empuje utilizando Rigidbody.AddForce
         Vector3 fuerzaPush = direccionAtaque * luchadorData.fuerza * 0.5f; // Ajusta el multiplicador según sea necesario
         rb.AddForce(fuerzaPush, ForceMode.Impulse);
+
+        // Actualizar la barra de vida después de recibir daño
+        controladorTorneo.ActualizarBarraVida(this);
     }
 
     public bool EstaVivo()
@@ -175,7 +182,7 @@ public class Luchador : MonoBehaviour
     {
         estaAtacando = true;
 
-        Vector3 direccionEsquiva = Vector3.forward * -15f;
+        Vector3 direccionEsquiva = Vector3.forward * -25f;
         Vector3 posicionObjetivo = transform.position + direccionEsquiva;
         float tiempoMovimiento = 0.3f;
         yield return StartCoroutine(MoverHacia(posicionObjetivo, tiempoMovimiento));
@@ -185,4 +192,23 @@ public class Luchador : MonoBehaviour
 
         estaAtacando = false;
     }
+
+    // Método para obtener el porcentaje de salud actual (0 a 1)
+    public float GetHealthPercent()
+    {
+        return vidaActual / luchadorData.vidaMaxima;
+    }
+
+
+    // Método para resetear el estado del luchador entre combates
+    public void ResetearEstado(LuchadorData nuevoLuchadorData)
+    {
+        luchadorData = nuevoLuchadorData;
+        vidaActual = luchadorData.vidaMaxima; // Restablecer la vida
+        transform.position = posicionInicial; // Volver a la posición inicial
+        transform.localScale = escalaOriginal; // Restablecer la escala original
+        GetComponent<Renderer>().material.mainTexture = luchadorData.imagen; // Actualizar la imagen del luchador, si es necesario
+        rb.velocity = Vector3.zero; // Detener cualquier movimiento anterior
+    }
+
 }

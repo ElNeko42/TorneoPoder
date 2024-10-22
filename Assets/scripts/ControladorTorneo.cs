@@ -1,7 +1,9 @@
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using MagicPigGames;
 
 public class ControladorTorneo : MonoBehaviour
 {
@@ -12,13 +14,22 @@ public class ControladorTorneo : MonoBehaviour
     public TextMeshProUGUI textoRonda; // UI para mostrar la ronda actual
     public TextMeshProUGUI textoCombate; // UI para mostrar qué luchadores están peleando
     public TextMeshProUGUI textoEventos; // UI para mostrar los eventos del combate
-    public GameObject luchadorPrefab; // Asigna el prefab de tu luchador en el inspector
-    private List<LuchadorData> luchadoresRestantes; // Lista dinámica de datos de luchadores que quedan en el torneo
+    public GameObject luchadorPrefab; // Prefab del luchador
+
+    // Referencias a las barras de vida y las imágenes de los luchadores
+    public RawImage imagenLuchador1Barra;
+    public RawImage imagenLuchador2Barra;
+    public ProgressBarInspectorTest barraLuchador1;
+    public ProgressBarInspectorTest barraLuchador2;
+
     private int rondaActual = 1;
+
+    // Referencias a las instancias de los luchadores en combate
+    private Luchador luchadorInstancia1;
+    private Luchador luchadorInstancia2;
 
     void Start()
     {
-        luchadoresRestantes = new List<LuchadorData>(todosLuchadores); // Inicia la lista de datos de luchadores
         StartCoroutine(PrepararTorneo());
     }
 
@@ -31,62 +42,15 @@ public class ControladorTorneo : MonoBehaviour
     // Corrutina para manejar las rondas del torneo
     private IEnumerator PrepararTorneo()
     {
-        while (luchadoresRestantes.Count > 1)
-        {
-            textoEventos.text = ""; // Limpiar los eventos de la ronda anterior
-            textoRonda.text = "Ronda " + rondaActual;
+        // Configurar al jugador como el primer luchador
+        LuchadorData jugadorData = GameManager.instance.jugadorActual;
+        LuchadorData oponenteData = GameManager.instance.oponenteActual;
 
-            List<(LuchadorData, LuchadorData)> paresDeLuchadores = GenerarCuadroDeCombate(luchadoresRestantes);
+        // Preparar el combate con los datos del jugador y del oponente
+        yield return StartCoroutine(PrepararCombate(jugadorData, oponenteData));
 
-            foreach (var par in paresDeLuchadores)
-            {
-                textoCombate.text = par.Item1.nombre + " vs " + (par.Item2 != null ? par.Item2.nombre : "Automático");
-
-                if (par.Item2 != null)
-                {
-                    yield return StartCoroutine(PrepararCombate(par.Item1, par.Item2));
-                }
-                else
-                {
-                    luchadoresRestantes.Add(par.Item1);
-                    MostrarEvento($"{par.Item1.nombre} avanza automáticamente!");
-                    yield return new WaitForSeconds(2f);
-                }
-            }
-
-            rondaActual++;
-        }
-
-        textoRonda.text = "¡El ganador del torneo es " + luchadoresRestantes[0].nombre + "!";
-    }
-
-    private List<(LuchadorData, LuchadorData)> GenerarCuadroDeCombate(List<LuchadorData> luchadores)
-    {
-        List<(LuchadorData, LuchadorData)> cuadro = new List<(LuchadorData, LuchadorData)>();
-        System.Random random = new System.Random();
-        for (int i = 0; i < luchadores.Count; i++)
-        {
-            int randomIndex = random.Next(i, luchadores.Count);
-            LuchadorData temp = luchadores[i];
-            luchadores[i] = luchadores[randomIndex];
-            luchadores[randomIndex] = temp;
-        }
-
-        for (int i = 0; i < luchadores.Count; i += 2)
-        {
-            if (i + 1 < luchadores.Count)
-            {
-                cuadro.Add((luchadores[i], luchadores[i + 1]));
-            }
-            else
-            {
-                cuadro.Add((luchadores[i], null));
-            }
-        }
-
-        luchadoresRestantes.Clear();
-
-        return cuadro;
+        // Mostrar mensaje de ganador
+        textoRonda.text = "¡El ganador del torneo es " + jugadorData.nombre + "!";
     }
 
     private IEnumerator PrepararCombate(LuchadorData luchador1Data, LuchadorData luchador2Data)
@@ -95,20 +59,35 @@ public class ControladorTorneo : MonoBehaviour
         GameObject luchadorObj1 = Instantiate(luchadorPrefab, respawnPoints[0].position, Quaternion.identity);
         GameObject luchadorObj2 = Instantiate(luchadorPrefab, respawnPoints[1].position, Quaternion.identity);
 
-        Luchador luchadorInstancia1 = luchadorObj1.GetComponent<Luchador>();
-        Luchador luchadorInstancia2 = luchadorObj2.GetComponent<Luchador>();
+        luchadorInstancia1 = luchadorObj1.GetComponent<Luchador>();
+        luchadorInstancia2 = luchadorObj2.GetComponent<Luchador>();
 
         // Asignarles los datos del ScriptableObject
         luchadorInstancia1.luchadorData = luchador1Data;
         luchadorInstancia2.luchadorData = luchador2Data;
 
-        // Asignar referencia al controlador
+        // Asignar referencia al controlador para ambos luchadores
         luchadorInstancia1.controladorTorneo = this;
         luchadorInstancia2.controladorTorneo = this;
 
         // Asignar posiciones de ataque
         luchadorInstancia1.posicionAtaque = posicionLuchaluchador1.transform.position;
         luchadorInstancia2.posicionAtaque = posicionLuchaluchador2.transform.position;
+
+        // Asignar imágenes de los luchadores en las barras de vida
+        if (imagenLuchador1Barra != null && luchador1Data.imagen != null)
+        {
+            imagenLuchador1Barra.texture = luchador1Data.imagen;
+        }
+
+        if (imagenLuchador2Barra != null && luchador2Data.imagen != null)
+        {
+            imagenLuchador2Barra.texture = luchador2Data.imagen;
+        }
+
+        // Inicializar las barras de vida
+        ActualizarBarraVida(luchadorInstancia1);
+        ActualizarBarraVida(luchadorInstancia2);
 
         yield return new WaitForSeconds(2f);
 
@@ -139,19 +118,38 @@ public class ControladorTorneo : MonoBehaviour
         // Determinar el ganador y mostrar mensaje
         if (!luchadorInstancia1.EstaVivo())
         {
-            luchadoresRestantes.Add(luchador2Data);
-            MostrarEvento($"{luchador2Data.nombre} avanza al siguiente round!");
+            MostrarEvento($"{luchadorInstancia2.luchadorData.nombre} ha ganado!");
         }
         else
         {
-            luchadoresRestantes.Add(luchador1Data);
-            MostrarEvento($"{luchador1Data.nombre} avanza al siguiente round!");
+            MostrarEvento($"{luchadorInstancia1.luchadorData.nombre} ha ganado!");
         }
 
-        // Destruir los objetos una vez que termina la pelea
-        Destroy(luchadorObj1);
-        Destroy(luchadorObj2);
+        // Asegurar que haya un delay antes de cambiar de escena
+        yield return new WaitForSeconds(2f);
 
-        yield return null;
+        // Volver a la escena "VS" o a la escena de derrota
+        if (luchadorInstancia1.EstaVivo())
+        {
+            SceneManager.LoadScene("VSScene");
+        }
+        else
+        {
+            SceneManager.LoadScene("DerrotaScene");
+        }
+    }
+
+    // Método para actualizar las barras de vida
+    public void ActualizarBarraVida(Luchador luchador)
+    {
+        if (barraLuchador1 != null && luchador == luchadorInstancia1)
+        {
+            barraLuchador1.progress = luchador.GetHealthPercent();
+        }
+
+        if (barraLuchador2 != null && luchador == luchadorInstancia2)
+        {
+            barraLuchador2.progress = luchador.GetHealthPercent();
+        }
     }
 }

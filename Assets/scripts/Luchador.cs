@@ -1,6 +1,6 @@
-// Luchador.cs
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Luchador : MonoBehaviour
 {
@@ -13,12 +13,29 @@ public class Luchador : MonoBehaviour
     private Vector3 escalaOriginal;
     private bool estaAtacando = false;
     private bool estaDeformando = false;
+    public Transform puntoKi; // Punto donde se lanzará la bola de energía
+    public GameObject ataqueEspecialPrefab; // Prefab de la bola de energía
 
     void Start()
     {
         vidaActual = luchadorData.vidaMaxima;
         posicionInicial = transform.position;
         escalaOriginal = transform.localScale; // Almacenar la escala original
+
+        // Buscar el transform del hijo con el tag "ki"
+        foreach (Transform child in transform)
+        {
+            if (child.CompareTag("ki"))
+            {
+                puntoKi = child;
+                break;
+            }
+        }
+
+        if (puntoKi == null)
+        {
+            Debug.LogError("No se encontró ningún hijo con el tag 'ki'. Asegúrate de que el punto está correctamente asignado.");
+        }
 
         // Asignar la imagen al material del cubo
         Renderer renderer = GetComponent<Renderer>();
@@ -29,6 +46,7 @@ public class Luchador : MonoBehaviour
             renderer.material.mainTexture = luchadorData.imagen;
         }
     }
+
 
     // Función que inicia el ataque
     public IEnumerator Atacar(Luchador oponente)
@@ -64,11 +82,19 @@ public class Luchador : MonoBehaviour
         // Deformación exagerada durante el ataque
         yield return StartCoroutine(DeformarCubo(true, 0.1f));
 
-        // Calcular la dirección del ataque
-        Vector3 direccionAtaque = (oponente.transform.position - transform.position).normalized;
+        // Probabilidad de lanzar ataque especial (20%)
+        if (Random.value <= 0.2f)
+        {
+            LanzarAtaqueEspecial(oponente); // Lanza la bola de energía
+        }
+        else
+        {
+            // Calcular la dirección del ataque
+            Vector3 direccionAtaque = (oponente.transform.position - transform.position).normalized;
 
-        // Aplicar el ataque al oponente con la dirección
-        oponente.RecibirGolpe(luchadorData.fuerza, direccionAtaque);
+            // Aplicar el ataque al oponente con la dirección
+            oponente.RecibirGolpe(luchadorData.fuerza, direccionAtaque);
+        }
 
         // Revertir la deformación y rotación al regresar
         yield return StartCoroutine(DeformarCubo(false, 0.1f));
@@ -85,6 +111,16 @@ public class Luchador : MonoBehaviour
 
     }
 
+    // Función para lanzar la bola de energía
+    private void LanzarAtaqueEspecial(Luchador oponente)
+    {
+        GameObject ataqueEspecial = Instantiate(ataqueEspecialPrefab, puntoKi.position, Quaternion.identity);
+        Vector3 direccion = (oponente.transform.position - puntoKi.position).normalized;
+        ataqueEspecial.GetComponent<Rigidbody>().velocity = direccion * 10f;
+
+        // Añadir lógica para destruir la bola y aplicar el daño especial
+        ataqueEspecial.AddComponent<BolaEnergia>().Inicializar(oponente, luchadorData.fuerza * 3); // Daño triplicado
+    }
 
     private IEnumerator MoverHacia(Vector3 objetivo, float tiempo)
     {
@@ -140,7 +176,6 @@ public class Luchador : MonoBehaviour
         Camera.main.GetComponent<CameraController>().StartCoroutine(Camera.main.GetComponent<CameraController>().TemblorCamara(0.2f, 0.3f));
     }
 
-
     public bool EstaVivo()
     {
         return vidaActual > 0;
@@ -169,8 +204,6 @@ public class Luchador : MonoBehaviour
         estaDeformando = false;
     }
 
-
-    // Opcional: Método para esquivar (sin cambios)
     public void Esquivar()
     {
         if (!estaAtacando)
@@ -194,14 +227,11 @@ public class Luchador : MonoBehaviour
         estaAtacando = false;
     }
 
-    // Método para obtener el porcentaje de salud actual (0 a 1)
     public float GetHealthPercent()
     {
         return vidaActual / luchadorData.vidaMaxima;
     }
 
-
-    // Método para resetear el estado del luchador entre combates
     public void ResetearEstado(LuchadorData nuevoLuchadorData)
     {
         luchadorData = nuevoLuchadorData;
@@ -211,5 +241,4 @@ public class Luchador : MonoBehaviour
         GetComponent<Renderer>().material.mainTexture = luchadorData.imagen; // Actualizar la imagen del luchador, si es necesario
         rb.velocity = Vector3.zero; // Detener cualquier movimiento anterior
     }
-
 }

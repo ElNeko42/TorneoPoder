@@ -15,6 +15,7 @@ public class ControladorTorneo : MonoBehaviour
     public TextMeshProUGUI textoCombate; // UI para mostrar qué luchadores están peleando
     public TextMeshProUGUI textoEventos; // UI para mostrar los eventos del combate
     public GameObject luchadorPrefab; // Prefab del luchador
+    public GameObject ataqueEspecialPrefab;
 
     // Referencias a las barras de vida y las imágenes de los luchadores
     public RawImage imagenLuchador1Barra;

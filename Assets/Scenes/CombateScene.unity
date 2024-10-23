@@ -641,6 +641,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tenkaichi_Budokai_Arena
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: b5235126d5e968f4ba36dfe4faeccc69, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1352,6 +1356,7 @@ MonoBehaviour:
   textoCombate: {fileID: 73296647}
   textoEventos: {fileID: 73296647}
   luchadorPrefab: {fileID: 8433681021407856287, guid: b8836f532865df84da0eb5d18f688c98, type: 3}
+  ataqueEspecialPrefab: {fileID: 5597114446078348812, guid: e7cd5777c18235f46aed07e793a91ff7, type: 3}
   imagenLuchador1Barra: {fileID: 640014863}
   imagenLuchador2Barra: {fileID: 1952265622}
   barraLuchador1: {fileID: 2125902616}
@@ -1463,13 +1468,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1529625650}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
   m_LocalPosition: {x: -25.3, y: 4.87, z: 6.744781}
   m_LocalScale: {x: 10, y: 10, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!1 &1758330118
 GameObject:
   m_ObjectHideFlags: 0

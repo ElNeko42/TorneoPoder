@@ -22,7 +22,7 @@ public class ControladorTorneo : MonoBehaviour
     public ProgressBarInspectorTest barraLuchador1;
     public ProgressBarInspectorTest barraLuchador2;
 
-    private int rondaActual = 1;
+    //private int rondaActual = 1;
 
     // Referencias a las instancias de los luchadores en combate
     private Luchador luchadorInstancia1;
@@ -36,7 +36,7 @@ public class ControladorTorneo : MonoBehaviour
     // Método para mostrar eventos en pantalla
     public void MostrarEvento(string mensaje)
     {
-        textoEventos.text += mensaje + "\n";
+        textoEventos.text = mensaje;
     }
 
     // Corrutina para manejar las rondas del torneo

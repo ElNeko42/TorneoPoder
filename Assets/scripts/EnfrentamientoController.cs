@@ -22,12 +22,12 @@ public class EnfrentamientoController : MonoBehaviour
     {
         if (GameManager.instance.rondaActual == 0)
         {
-            Debug.Log("Ronda actual0: " + GameManager.instance.rondaActual);
-            if (TournamentData.luchadoresRestantes.Count == 0)
-            {
-                // Generar el torneo al inicio si no se ha generado aún
-                GenerarTorneo();
-            }
+            // Generar el torneo al inicio si no se ha generado aún
+            GenerarTorneo();
+            // Mostrar datos del enfrentamiento actual
+            MostrarEnfrentamiento();
+            // Esperar unos segundos y luego pasar a la escena de combate
+            StartCoroutine(EsperarYCargarCombate());
         }
         else 
         {
@@ -37,25 +37,21 @@ public class EnfrentamientoController : MonoBehaviour
             SiguienteEnfrentamiento();
         }
 
-        // Mostrar datos del enfrentamiento actual
-        MostrarEnfrentamiento();
 
-        // Esperar unos segundos y luego pasar a la escena de combate
-        StartCoroutine(EsperarYCargarCombate());
     }
 
     void GenerarTorneo()
     {
         oponentes = new List<LuchadorData>();
-
-        // Seleccionamos 4 oponentes al azar excluyendo al jugador
         for (int i = 0; i < 4; i++)
         {
-            LuchadorData oponente = todosLuchadores[Random.Range(0, todosLuchadores.Count)];
-            if (!oponentes.Contains(oponente) && oponente != jugador)
+            LuchadorData oponente;
+            do
             {
-                oponentes.Add(oponente);
-            }
+                oponente = todosLuchadores[Random.Range(0, todosLuchadores.Count)];
+            } while (oponente == jugador || oponentes.Contains(oponente));
+
+            oponentes.Add(oponente);
         }
 
         // Guardar los datos generados en TournamentData
@@ -100,11 +96,12 @@ public class EnfrentamientoController : MonoBehaviour
     // Método para continuar con el siguiente enfrentamiento o mostrar la victoria
     public void SiguienteEnfrentamiento()
     {
-        if (oponenteActual < TournamentData.luchadoresRestantes.Count)
+        if (oponenteActual + 1 < TournamentData.luchadoresRestantes.Count)
         {
-            // Avanzar a la siguiente ronda y actualizar la información del torneo
+            oponenteActual++;
             TournamentData.rondaActual++;
-            EsperarYCargarCombate();
+            MostrarEnfrentamiento();
+            StartCoroutine(EsperarYCargarCombate());
         }
         else
         {
@@ -112,4 +109,5 @@ public class EnfrentamientoController : MonoBehaviour
             SceneManager.LoadScene("VictoriaScene");
         }
     }
+
 }

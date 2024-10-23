@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72d6a7baa4f246f4f93741ee61007040, type: 3}
   m_Name: gohan
   m_EditorClassIdentifier: 
-  nombre: 
-  fuerza: 0
-  velocidad: 0
-  resistencia: 0
+  nombre: Gohan
+  fuerza: 56.6
+  velocidad: 62.1
+  resistencia: 62.1
   vidaMaxima: 100
-  imagen: {fileID: 0}
+  imagen: {fileID: 2800000, guid: 607e72943cc5581449983b47f28db750, type: 3}

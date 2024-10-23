@@ -486,6 +486,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   jugadorActual: {fileID: 0}
   oponenteActual: {fileID: 0}
+  rondaActual: 0
 --- !u!4 &501500252
 Transform:
   m_ObjectHideFlags: 0
@@ -1450,6 +1451,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: d25ffdee8bf78f44cbed7ee10b1eaf05, type: 2}
   - {fileID: 11400000, guid: 67089adc8814d7e428aef74dc3448b48, type: 2}
   - {fileID: 11400000, guid: 01180c5df5530844287cb19dea94af95, type: 2}
+  - {fileID: 11400000, guid: 323bb2ed84fc2fd45a680e3f0d121a57, type: 2}
   jugador: {fileID: 11400000, guid: 5ccdd86d88f3c4249a5506352a629f50, type: 2}
   imagenJugador1: {fileID: 2024125986}
   imagenJugador2: {fileID: 931169422}

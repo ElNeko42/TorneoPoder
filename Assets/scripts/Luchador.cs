@@ -43,10 +43,17 @@ public class Luchador : MonoBehaviour
     private IEnumerator RealizarAtaque(Luchador oponente)
     {
         estaAtacando = true;
+        // Establecer el enfoque de la cámara en este luchador antes de atacar
+        Camera.main.GetComponent<CameraController>().EstablecerObjetivo(transform);
 
         // Movimiento hacia la posición de ataque
-        float tiempoMovimiento = 0.5f;
+        float tiempoMovimiento = 0.3f;
         yield return StartCoroutine(MoverHacia(posicionAtaque, tiempoMovimiento));
+
+        // Agregar una pequeña rotación rápida al final del ataque
+        Quaternion rotacionOriginal = transform.rotation;
+        Quaternion rotacionAtacando = Quaternion.Euler(0, 0, Random.Range(-20f, 20f));
+        transform.rotation = rotacionAtacando;
 
         // Mirar hacia el oponente
         transform.LookAt(oponente.transform.position);
@@ -54,8 +61,8 @@ public class Luchador : MonoBehaviour
         // Mostrar evento de ataque
         controladorTorneo.MostrarEvento($"{luchadorData.nombre} ataca a {oponente.luchadorData.nombre}");
 
-        // Iniciar deformación durante el ataque
-        yield return StartCoroutine(DeformarCubo(true, 0.2f));
+        // Deformación exagerada durante el ataque
+        yield return StartCoroutine(DeformarCubo(true, 0.1f));
 
         // Calcular la dirección del ataque
         Vector3 direccionAtaque = (oponente.transform.position - transform.position).normalized;
@@ -63,19 +70,21 @@ public class Luchador : MonoBehaviour
         // Aplicar el ataque al oponente con la dirección
         oponente.RecibirGolpe(luchadorData.fuerza, direccionAtaque);
 
-        // Revertir deformación al regresar
-        yield return StartCoroutine(DeformarCubo(false, 0.2f));
+        // Revertir la deformación y rotación al regresar
+        yield return StartCoroutine(DeformarCubo(false, 0.1f));
+        transform.rotation = rotacionOriginal;
 
         // Regresar a la posición inicial
-        yield return new WaitForSeconds(0.5f);
-        transform.LookAt(posicionInicial); // Mirar hacia la posición inicial
+        yield return new WaitForSeconds(0.2f); // Tiempo de espera más corto
         yield return StartCoroutine(MoverHacia(posicionInicial, tiempoMovimiento));
 
         estaAtacando = false;
 
-        // Actualizar la barra de vida después de atacar (si es necesario)
+        // Actualizar la barra de vida después de atacar
         controladorTorneo.ActualizarBarraVida(this);
+
     }
+
 
     private IEnumerator MoverHacia(Vector3 objetivo, float tiempo)
     {
@@ -94,44 +103,43 @@ public class Luchador : MonoBehaviour
 
     public void RecibirGolpe(float ataqueAtacante, Vector3 direccionAtaque)
     {
-        // Determinar si el luchador esquiva el ataque
-        float probabilidadEsquiva = 0.2f; // 20%
-        if (Random.value <= probabilidadEsquiva)
+        // Esquivar
+        if (Random.value <= 0.2f)
         {
-            // Esquiva el ataque
             Esquivar();
             controladorTorneo.MostrarEvento($"{luchadorData.nombre} ha esquivado el ataque!");
-            return; // No aplicar daño ni fuerza
+            return;
         }
 
-        // Calcular el daño basado en el ataque y la resistencia
+        // Calcular el daño
         float daño = Mathf.Max(0, ataqueAtacante - luchadorData.resistencia);
-
-        if (luchadorData.resistencia > ataqueAtacante)
-        {
-            daño = ataqueAtacante * 0.1f; // Solo el 10% del ataque si la defensa es mayor
-        }
-        daño = 100;
-        // Aplicar el daño a la salud
+        daño = luchadorData.resistencia > ataqueAtacante ? ataqueAtacante * 0.1f : daño;
         vidaActual -= daño;
-        vidaActual = Mathf.Max(0, vidaActual); // Asegurarse de que la salud no sea negativa
+        vidaActual = Mathf.Max(0, vidaActual);
 
-        // Mostrar evento de daño recibido
+        // Mostrar el daño recibido
         controladorTorneo.MostrarEvento($"{luchadorData.nombre} recibe {daño:F1} de daño. Vida restante: {vidaActual:F1}");
 
         if (vidaActual <= 0)
         {
-            vidaActual = 0;
             controladorTorneo.MostrarEvento($"{luchadorData.nombre} ha sido derrotado!");
         }
 
-        // Aplicar el empuje utilizando Rigidbody.AddForce
-        Vector3 fuerzaPush = direccionAtaque * luchadorData.fuerza * 0.5f; // Ajusta el multiplicador según sea necesario
-        rb.AddForce(fuerzaPush, ForceMode.Impulse);
+        // Deformación exagerada al recibir golpe
+        StartCoroutine(DeformarCubo(true, 0.1f));
 
-        // Actualizar la barra de vida después de recibir daño
+        // Aplicar una fuerza más exagerada al luchador
+        Vector3 fuerzaExagerada = direccionAtaque * luchadorData.fuerza * 1.5f; // Multiplica por 1.5 para exagerar el empuje
+        rb.AddForce(fuerzaExagerada, ForceMode.Impulse);
+
+        // Revertir la deformación después de un tiempo corto
+        StartCoroutine(DeformarCubo(false, 0.1f));
+
+        // Actualizar barra de vida
         controladorTorneo.ActualizarBarraVida(this);
+        Camera.main.GetComponent<CameraController>().StartCoroutine(Camera.main.GetComponent<CameraController>().TemblorCamara(0.2f, 0.3f));
     }
+
 
     public bool EstaVivo()
     {
@@ -141,19 +149,11 @@ public class Luchador : MonoBehaviour
     private IEnumerator DeformarCubo(bool estirando, float duracion)
     {
         if (estaDeformando) yield break; // Evitar deformaciones superpuestas
-
         estaDeformando = true;
 
-        Vector3 escalaObjetivo;
-
-        if (estirando)
-        {
-            escalaObjetivo = new Vector3(escalaOriginal.x, escalaOriginal.y, escalaOriginal.z * 1.5f);
-        }
-        else
-        {
-            escalaObjetivo = escalaOriginal;
-        }
+        Vector3 escalaObjetivo = estirando
+            ? new Vector3(escalaOriginal.x * 1.2f, escalaOriginal.y * 0.8f, escalaOriginal.z * 1.5f)  // Exagerar estiramiento
+            : escalaOriginal;
 
         Vector3 escalaInicialDeformada = transform.localScale;
         float tiempoTranscurrido = 0f;
@@ -168,6 +168,7 @@ public class Luchador : MonoBehaviour
         transform.localScale = escalaObjetivo;
         estaDeformando = false;
     }
+
 
     // Opcional: Método para esquivar (sin cambios)
     public void Esquivar()

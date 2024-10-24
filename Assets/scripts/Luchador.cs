@@ -83,7 +83,7 @@ public class Luchador : MonoBehaviour
         yield return StartCoroutine(DeformarCubo(true, 0.1f));
 
         // Probabilidad de lanzar ataque especial (20%)
-        if (Random.value <= 0.2f)
+        if (Random.value <= 0.10f)
         {
             LanzarAtaqueEspecial(oponente); // Lanza la bola de energía
         }
@@ -119,7 +119,7 @@ public class Luchador : MonoBehaviour
         ataqueEspecial.GetComponent<Rigidbody>().velocity = direccion * 10f;
 
         // Añadir lógica para destruir la bola y aplicar el daño especial
-        ataqueEspecial.AddComponent<BolaEnergia>().Inicializar(oponente, luchadorData.fuerza * 3); // Daño triplicado
+        ataqueEspecial.AddComponent<BolaEnergia>().Inicializar(oponente, luchadorData.fuerza * 2); // Daño triplicado
     }
 
     private IEnumerator MoverHacia(Vector3 objetivo, float tiempo)
@@ -164,8 +164,10 @@ public class Luchador : MonoBehaviour
         // Deformación exagerada al recibir golpe
         StartCoroutine(DeformarCubo(true, 0.1f));
 
-        // Aplicar una fuerza más exagerada al luchador
-        Vector3 fuerzaExagerada = direccionAtaque * luchadorData.fuerza * 1.5f; // Multiplica por 1.5 para exagerar el empuje
+        // Limitar la fuerza aplicada para que el luchador no sea empujado demasiado lejos
+        Vector3 fuerzaExagerada = direccionAtaque * luchadorData.fuerza * 1.5f; // Aplicar fuerza
+        fuerzaExagerada = Vector3.ClampMagnitude(fuerzaExagerada, 5f); // Limitar la magnitud de la fuerza a 5 unidades (puedes ajustar este valor)
+
         rb.AddForce(fuerzaExagerada, ForceMode.Impulse);
 
         // Revertir la deformación después de un tiempo corto
@@ -175,6 +177,7 @@ public class Luchador : MonoBehaviour
         controladorTorneo.ActualizarBarraVida(this);
         Camera.main.GetComponent<CameraController>().StartCoroutine(Camera.main.GetComponent<CameraController>().TemblorCamara(0.2f, 0.3f));
     }
+
 
     public bool EstaVivo()
     {

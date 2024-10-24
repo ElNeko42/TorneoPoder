@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,7 +8,6 @@ using MagicPigGames;
 
 public class ControladorTorneo : MonoBehaviour
 {
-    public LuchadorData[] todosLuchadores; // Datos de todos los luchadores del torneo
     public Transform[] respawnPoints; // Solo dos puntos de respawn
     public GameObject posicionLuchaluchador1;
     public GameObject posicionLuchaluchador2;
@@ -23,11 +23,12 @@ public class ControladorTorneo : MonoBehaviour
     public ProgressBarInspectorTest barraLuchador1;
     public ProgressBarInspectorTest barraLuchador2;
 
-    //private int rondaActual = 1;
+    public EleegirController elegirController; // Asigna esto desde el inspector
+    private List<string> movimientosJugador;
 
     // Referencias a las instancias de los luchadores en combate
-    private Luchador luchadorInstancia1;
-    private Luchador luchadorInstancia2;
+    public Luchador luchadorInstancia1;
+    public Luchador luchadorInstancia2;
 
     void Start()
     {
@@ -92,51 +93,103 @@ public class ControladorTorneo : MonoBehaviour
 
         yield return new WaitForSeconds(2f);
 
-        // Determinar quién ataca primero basado en la velocidad
-        bool turnoLuchador1 = luchador1Data.velocidad >= luchador2Data.velocidad;
-
-        // Ciclo de combate
+        // Ciclo de combate hasta que uno de los luchadores muera
         while (luchadorInstancia1.EstaVivo() && luchadorInstancia2.EstaVivo())
         {
-            if (turnoLuchador1)
+            // Obtener los movimientos del jugador 1 (Luchador 1)
+            yield return StartCoroutine(ObtenerMovimientosJugador());
+
+            // Determinar quién ataca primero basado en la velocidad
+            bool turnoLuchador1 = luchador1Data.velocidad >= luchador2Data.velocidad;
+
+            // Índice para los movimientos del jugador
+            int indiceMovimientoJugador = 0;
+
+            // Mientras haya movimientos del jugador por ejecutar y ambos luchadores estén vivos
+            while (indiceMovimientoJugador < movimientosJugador.Count && luchadorInstancia1.EstaVivo() && luchadorInstancia2.EstaVivo())
             {
-                // Luchador 1 ataca
-                yield return StartCoroutine(luchadorInstancia1.Atacar(luchadorInstancia2));
+                if (turnoLuchador1)
+                {
+                    // Luchador 1 ejecuta su acción
+                    yield return StartCoroutine(EjecutarAccionJugador(movimientosJugador[indiceMovimientoJugador], luchadorInstancia1, luchadorInstancia2));
+                    indiceMovimientoJugador++;
+                }
+                else
+                {
+                    // Luchador 2 ataca
+                    yield return StartCoroutine(luchadorInstancia2.Atacar(luchadorInstancia1));
+                }
+
+                // Cambiar de turno
+                turnoLuchador1 = !turnoLuchador1;
+
+                // Esperar antes del siguiente turno
+                yield return new WaitForSeconds(1f);
             }
-            else
+
+            // Si los movimientos del jugador se han agotado pero el combate continúa, se sigue con el luchador 2
+            while (luchadorInstancia1.EstaVivo() && luchadorInstancia2.EstaVivo() && !turnoLuchador1)
             {
                 // Luchador 2 ataca
                 yield return StartCoroutine(luchadorInstancia2.Atacar(luchadorInstancia1));
+
+                // Cambiar de turno
+                turnoLuchador1 = !turnoLuchador1;
+
+                // Esperar antes del siguiente turno
+                yield return new WaitForSeconds(1f);
             }
-
-            // Cambiar de turno
-            turnoLuchador1 = !turnoLuchador1;
-
-            // Esperar un tiempo antes del siguiente ataque
-            yield return new WaitForSeconds(1f);
         }
 
-        // Determinar el ganador y mostrar mensaje
+        // Mostrar el ganador
         if (!luchadorInstancia1.EstaVivo())
         {
             MostrarEvento($"{luchadorInstancia2.luchadorData.nombre} ha ganado!");
+            yield return new WaitForSeconds(2f);
+            SceneManager.LoadScene("DerrotaScene");
         }
         else
         {
             MostrarEvento($"{luchadorInstancia1.luchadorData.nombre} ha ganado!");
-        }
-
-        // Asegurar que haya un delay antes de cambiar de escena
-        yield return new WaitForSeconds(2f);
-
-        // Volver a la escena "VS" o a la escena de derrota
-        if (luchadorInstancia1.EstaVivo())
-        {
+            yield return new WaitForSeconds(2f);
             SceneManager.LoadScene("VSScene");
         }
-        else
+    }
+
+    private IEnumerator ObtenerMovimientosJugador()
+    {
+        // Reiniciar las acciones seleccionadas
+        elegirController.ResetearAcciones();
+        elegirController.accionesListas = false;
+
+        // Mostrar el canvas para que el jugador seleccione sus acciones
+        elegirController.MostrarCanvas();
+
+        // Esperar hasta que el jugador presione "Luchar" y las acciones estén listas
+        yield return new WaitUntil(() => elegirController.accionesListas);
+
+        // Obtener la lista de acciones seleccionadas
+        movimientosJugador = new List<string>(elegirController.accionesSeleccionadas);
+    }
+
+    private IEnumerator EjecutarAccionJugador(string accion, Luchador luchador1, Luchador luchador2)
+    {
+        if (accion == "pegar")
         {
-            SceneManager.LoadScene("DerrotaScene");
+            // El jugador ataca
+            yield return StartCoroutine(luchador1.Atacar(luchador2));
+        }
+        else if (accion == "esquivar")
+        {
+            // El jugador esquiva
+            MostrarEvento($"{luchador1.luchadorData.nombre} se prepara para esquivar.");
+            luchador1.PrepararEsquivar();
+            yield return new WaitForSeconds(1f);
+        }
+        else if (accion == "especial")
+        {
+            // El jugador realiza un ataque especial
+            yield return StartCoroutine(luchador1.AtacarEspecial(luchador2));
         }
     }
 

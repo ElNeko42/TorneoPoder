@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class Luchador : MonoBehaviour
 {
@@ -15,6 +14,8 @@ public class Luchador : MonoBehaviour
     private bool estaDeformando = false;
     public Transform puntoKi; // Punto donde se lanzará la bola de energía
     public GameObject ataqueEspecialPrefab; // Prefab de la bola de energía
+
+    public bool preparadoParaEsquivar = false;
 
     void Start()
     {
@@ -47,7 +48,6 @@ public class Luchador : MonoBehaviour
         }
     }
 
-
     // Función que inicia el ataque
     public IEnumerator Atacar(Luchador oponente)
     {
@@ -62,7 +62,7 @@ public class Luchador : MonoBehaviour
     {
         estaAtacando = true;
         // Establecer el enfoque de la cámara en este luchador antes de atacar
-        Camera.main.GetComponent<CameraController>().EstablecerObjetivo(transform);
+        // Camera.main.GetComponent<CameraController>().EstablecerObjetivo(transform);
 
         // Mostrar evento de ataque
         controladorTorneo.MostrarEvento($"{luchadorData.nombre} ataca a {oponente.luchadorData.nombre}");
@@ -70,7 +70,7 @@ public class Luchador : MonoBehaviour
         // Deformación exagerada durante el ataque
         yield return StartCoroutine(DeformarCubo(true, 0.1f));
 
-        if (Random.value <= 0.20f)
+        if (Random.value <= 0.20f && this != controladorTorneo.luchadorInstancia1) // Solo el oponente usa probabilidad para ataque especial
         {
             // Si lanza un ataque especial (bola de energía), no se mueve hacia el oponente
             LanzarAtaqueEspecial(oponente); // Lanza la bola de energía
@@ -93,7 +93,7 @@ public class Luchador : MonoBehaviour
             Vector3 direccionAtaque = (oponente.transform.position - transform.position).normalized;
 
             // Aplicar el ataque al oponente con la dirección
-            oponente.RecibirGolpe(luchadorData.fuerza, direccionAtaque,false);
+            oponente.RecibirGolpe(luchadorData.fuerza, direccionAtaque, false);
 
             // Revertir la deformación y rotación al regresar
             yield return StartCoroutine(DeformarCubo(false, 0.1f));
@@ -118,13 +118,37 @@ public class Luchador : MonoBehaviour
         ataqueEspecial.GetComponent<Rigidbody>().velocity = direccion * 50f;
 
         // Hacer que la cámara enfoque a la bola de energía
-        Camera.main.GetComponent<CameraController>().EstablecerObjetivo(ataqueEspecial.transform);
+        // Camera.main.GetComponent<CameraController>().EstablecerObjetivo(ataqueEspecial.transform);
 
         // Añadir lógica para destruir la bola y aplicar el daño especial
-        ataqueEspecial.AddComponent<BolaEnergia>().Inicializar(oponente, luchadorData.fuerza * 2); // Daño triplicado
+        ataqueEspecial.AddComponent<BolaEnergia>().Inicializar(oponente, luchadorData.fuerza * 2); // Daño duplicado
 
         // Enviar el golpe como ataque especial (true)
         oponente.RecibirGolpe(luchadorData.fuerza * 2, direccion, true); // El tercer parámetro es true porque es un ataque especial
+    }
+
+    public IEnumerator AtacarEspecial(Luchador oponente)
+    {
+        if (!estaAtacando)
+        {
+            estaAtacando = true;
+            // Establecer el enfoque de la cámara en este luchador antes de atacar
+            // Camera.main.GetComponent<CameraController>().EstablecerObjetivo(transform);
+
+            // Mostrar evento de ataque especial
+            controladorTorneo.MostrarEvento($"{luchadorData.nombre} lanza un ataque especial a {oponente.luchadorData.nombre}");
+
+            // Lanzar el ataque especial
+            LanzarAtaqueEspecial(oponente);
+
+            // Esperar un tiempo para que el ataque especial tenga efecto
+            yield return new WaitForSeconds(1f);
+
+            estaAtacando = false;
+
+            // Actualizar la barra de vida después de atacar
+            controladorTorneo.ActualizarBarraVida(this);
+        }
     }
 
     private IEnumerator MoverHacia(Vector3 objetivo, float tiempo)
@@ -144,8 +168,14 @@ public class Luchador : MonoBehaviour
 
     public void RecibirGolpe(float ataqueAtacante, Vector3 direccionAtaque, bool esAtaqueEspecial)
     {
-        // Esquivar solo si NO es un ataque especial
-        if (!esAtaqueEspecial && Random.value <= 0.2f)
+        if (preparadoParaEsquivar)
+        {
+            Esquivar();
+            controladorTorneo.MostrarEvento($"{luchadorData.nombre} ha esquivado el ataque!");
+            preparadoParaEsquivar = false; // Resetear el flag después de esquivar
+            return;
+        }
+        else if (!esAtaqueEspecial && Random.value <= 0.2f && this != controladorTorneo.luchadorInstancia1)
         {
             Esquivar();
             controladorTorneo.MostrarEvento($"{luchadorData.nombre} ha esquivado el ataque!");
@@ -171,7 +201,7 @@ public class Luchador : MonoBehaviour
 
         // Limitar la fuerza aplicada para que el luchador no sea empujado demasiado lejos
         Vector3 fuerzaExagerada = direccionAtaque * luchadorData.fuerza * 1.5f; // Aplicar fuerza
-        fuerzaExagerada = Vector3.ClampMagnitude(fuerzaExagerada, 5f); // Limitar la magnitud de la fuerza a 5 unidades (puedes ajustar este valor)
+        fuerzaExagerada = Vector3.ClampMagnitude(fuerzaExagerada, 5f); // Limitar la magnitud de la fuerza a 5 unidades
 
         rb.AddForce(fuerzaExagerada, ForceMode.Impulse);
 
@@ -180,7 +210,7 @@ public class Luchador : MonoBehaviour
 
         // Actualizar barra de vida
         controladorTorneo.ActualizarBarraVida(this);
-        Camera.main.GetComponent<CameraController>().StartCoroutine(Camera.main.GetComponent<CameraController>().TemblorCamara(0.2f, 0.3f));
+        // Camera.main.GetComponent<CameraController>().StartCoroutine(Camera.main.GetComponent<CameraController>().TemblorCamara(0.2f, 0.3f));
     }
 
     public bool EstaVivo()
@@ -223,7 +253,7 @@ public class Luchador : MonoBehaviour
     {
         estaAtacando = true;
 
-        Vector3 direccionEsquiva = Vector3.forward * -25f;
+        Vector3 direccionEsquiva = Vector3.back * 2f;
         Vector3 posicionObjetivo = transform.position + direccionEsquiva;
         float tiempoMovimiento = 0.3f;
         yield return StartCoroutine(MoverHacia(posicionObjetivo, tiempoMovimiento));
@@ -232,6 +262,11 @@ public class Luchador : MonoBehaviour
         yield return StartCoroutine(MoverHacia(posicionInicial, tiempoMovimiento));
 
         estaAtacando = false;
+    }
+
+    public void PrepararEsquivar()
+    {
+        preparadoParaEsquivar = true;
     }
 
     public float GetHealthPercent()

@@ -466,7 +466,7 @@ GameObject:
   - component: {fileID: 460667522}
   - component: {fileID: 460667521}
   m_Layer: 0
-  m_Name: fire-place-189399
+  m_Name: efectoFuego
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

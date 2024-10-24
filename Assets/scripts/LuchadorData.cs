@@ -8,5 +8,6 @@ public class LuchadorData : ScriptableObject
     [Range(0, 100)] public float velocidad;
     [Range(0, 100)] public float resistencia;
     public float vidaMaxima = 100f;
+    public int energiaMaxima = 5;
     public Texture2D imagen; 
 }

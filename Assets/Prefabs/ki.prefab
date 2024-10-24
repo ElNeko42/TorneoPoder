@@ -31,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2.5, y: 1.5, z: 1}
+  m_LocalScale: {x: 9.46, y: 3.74, z: 3.784}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -160,20 +160,20 @@ TrailRenderer:
       - serializedVersion: 3
         time: 0
         value: 1
-        inSlope: 0
-        outSlope: 0
+        inSlope: 7.009879
+        outSlope: 7.009879
         tangentMode: 0
         weightedMode: 0
         inWeight: 0.33333334
-        outWeight: 0.33333334
+        outWeight: 0.2113815
       - serializedVersion: 3
-        time: 0.9496155
-        value: 0.34862494
-        inSlope: 0
-        outSlope: 0
+        time: 1
+        value: 0
+        inSlope: -9.28581
+        outSlope: -9.28581
         tangentMode: 0
         weightedMode: 0
-        inWeight: 0
+        inWeight: 0.05038762
         outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -214,7 +214,7 @@ TrailRenderer:
     textureMode: 0
     textureScale: {x: 1, y: 1}
     shadowBias: 0.5
-    generateLightingData: 0
+    generateLightingData: 1
   m_MinVertexDistance: 0.1
   m_MaskInteraction: 0
   m_Autodestruct: 1

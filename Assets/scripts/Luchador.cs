@@ -64,51 +64,50 @@ public class Luchador : MonoBehaviour
         // Establecer el enfoque de la cámara en este luchador antes de atacar
         Camera.main.GetComponent<CameraController>().EstablecerObjetivo(transform);
 
-        // Movimiento hacia la posición de ataque
-        float tiempoMovimiento = 0.3f;
-        yield return StartCoroutine(MoverHacia(posicionAtaque, tiempoMovimiento));
-
-        // Agregar una pequeña rotación rápida al final del ataque
-        Quaternion rotacionOriginal = transform.rotation;
-        Quaternion rotacionAtacando = Quaternion.Euler(0, 0, Random.Range(-20f, 20f));
-        transform.rotation = rotacionAtacando;
-
-        // Mirar hacia el oponente
-        transform.LookAt(oponente.transform.position);
-
         // Mostrar evento de ataque
         controladorTorneo.MostrarEvento($"{luchadorData.nombre} ataca a {oponente.luchadorData.nombre}");
 
         // Deformación exagerada durante el ataque
         yield return StartCoroutine(DeformarCubo(true, 0.1f));
 
-        // Probabilidad de lanzar ataque especial (20%)
-        if (Random.value <= 0.10f)
+        if (Random.value <= 0.20f)
         {
+            // Si lanza un ataque especial (bola de energía), no se mueve hacia el oponente
             LanzarAtaqueEspecial(oponente); // Lanza la bola de energía
         }
         else
         {
-            // Calcular la dirección del ataque
+            // Solo se mueve hacia el oponente si no lanza un ataque especial
+            float tiempoMovimiento = 0.3f;
+            yield return StartCoroutine(MoverHacia(posicionAtaque, tiempoMovimiento));
+
+            // Agregar una pequeña rotación rápida al final del ataque físico
+            Quaternion rotacionOriginal = transform.rotation;
+            Quaternion rotacionAtacando = Quaternion.Euler(0, 0, Random.Range(-20f, 20f));
+            transform.rotation = rotacionAtacando;
+
+            // Mirar hacia el oponente
+            transform.LookAt(oponente.transform.position);
+
+            // Calcular la dirección del ataque físico
             Vector3 direccionAtaque = (oponente.transform.position - transform.position).normalized;
 
             // Aplicar el ataque al oponente con la dirección
-            oponente.RecibirGolpe(luchadorData.fuerza, direccionAtaque);
+            oponente.RecibirGolpe(luchadorData.fuerza, direccionAtaque,false);
+
+            // Revertir la deformación y rotación al regresar
+            yield return StartCoroutine(DeformarCubo(false, 0.1f));
+            transform.rotation = rotacionOriginal;
+
+            // Regresar a la posición inicial
+            yield return new WaitForSeconds(0.2f); // Tiempo de espera más corto
+            yield return StartCoroutine(MoverHacia(posicionInicial, tiempoMovimiento));
         }
-
-        // Revertir la deformación y rotación al regresar
-        yield return StartCoroutine(DeformarCubo(false, 0.1f));
-        transform.rotation = rotacionOriginal;
-
-        // Regresar a la posición inicial
-        yield return new WaitForSeconds(0.2f); // Tiempo de espera más corto
-        yield return StartCoroutine(MoverHacia(posicionInicial, tiempoMovimiento));
 
         estaAtacando = false;
 
         // Actualizar la barra de vida después de atacar
         controladorTorneo.ActualizarBarraVida(this);
-
     }
 
     // Función para lanzar la bola de energía
@@ -116,10 +115,16 @@ public class Luchador : MonoBehaviour
     {
         GameObject ataqueEspecial = Instantiate(ataqueEspecialPrefab, puntoKi.position, Quaternion.identity);
         Vector3 direccion = (oponente.transform.position - puntoKi.position).normalized;
-        ataqueEspecial.GetComponent<Rigidbody>().velocity = direccion * 10f;
+        ataqueEspecial.GetComponent<Rigidbody>().velocity = direccion * 50f;
+
+        // Hacer que la cámara enfoque a la bola de energía
+        Camera.main.GetComponent<CameraController>().EstablecerObjetivo(ataqueEspecial.transform);
 
         // Añadir lógica para destruir la bola y aplicar el daño especial
         ataqueEspecial.AddComponent<BolaEnergia>().Inicializar(oponente, luchadorData.fuerza * 2); // Daño triplicado
+
+        // Enviar el golpe como ataque especial (true)
+        oponente.RecibirGolpe(luchadorData.fuerza * 2, direccion, true); // El tercer parámetro es true porque es un ataque especial
     }
 
     private IEnumerator MoverHacia(Vector3 objetivo, float tiempo)
@@ -137,10 +142,10 @@ public class Luchador : MonoBehaviour
         transform.position = objetivo;
     }
 
-    public void RecibirGolpe(float ataqueAtacante, Vector3 direccionAtaque)
+    public void RecibirGolpe(float ataqueAtacante, Vector3 direccionAtaque, bool esAtaqueEspecial)
     {
-        // Esquivar
-        if (Random.value <= 0.2f)
+        // Esquivar solo si NO es un ataque especial
+        if (!esAtaqueEspecial && Random.value <= 0.2f)
         {
             Esquivar();
             controladorTorneo.MostrarEvento($"{luchadorData.nombre} ha esquivado el ataque!");
@@ -177,7 +182,6 @@ public class Luchador : MonoBehaviour
         controladorTorneo.ActualizarBarraVida(this);
         Camera.main.GetComponent<CameraController>().StartCoroutine(Camera.main.GetComponent<CameraController>().TemblorCamara(0.2f, 0.3f));
     }
-
 
     public bool EstaVivo()
     {

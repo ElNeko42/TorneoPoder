@@ -31,7 +31,7 @@ public class BolaEnergia : MonoBehaviour
     {
         if (collision.gameObject == oponente.gameObject)
         {
-            oponente.RecibirGolpe(daño, Vector3.zero);
+            //oponente.RecibirGolpe(daño, Vector3.zero,true);
             Destroy(gameObject); // Destruir la bola de energía
         }
     }

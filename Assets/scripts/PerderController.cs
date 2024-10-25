@@ -28,6 +28,11 @@ public class PerderController : MonoBehaviour
 
     public void VolverMenu()
     {
+        TournamentData.rondaActual = 0;
+        GameManager.instance.jugadorActual = null;
+        GameManager.instance.esFinal = false;
+        GameManager.instance.oponenteActual = null;
+        GameManager.instance.rondaActual = 0;
         SceneManager.LoadScene("Main");
     }
 

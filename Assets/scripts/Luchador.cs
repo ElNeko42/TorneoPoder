@@ -121,7 +121,7 @@ public class Luchador : MonoBehaviour
         if (!estaAtacando)
         {
             estaAtacando = true;
-            controladorTorneo.MostrarEvento($"{luchadorData.nombre} lanza un ataque especial a {oponente.luchadorData.nombre}");
+            controladorTorneo.MostrarEvento($"{luchadorData.nombre} launch a special attack {oponente.luchadorData.nombre}");
             if (audioSourceEfectos != null && sonidoAtaqueEspecial != null)
             {
                 audioSourceEfectos.PlayOneShot(sonidoAtaqueEspecial);
@@ -151,14 +151,14 @@ public class Luchador : MonoBehaviour
         if (preparadoParaEsquivar)
         {
             Esquivar();
-            controladorTorneo.MostrarEvento($"{luchadorData.nombre} ha esquivado el ataque!");
+            controladorTorneo.MostrarEvento($"{luchadorData.nombre} has dodged the attack!");
             preparadoParaEsquivar = false;
             return;
         }
         else if (!esAtaqueEspecial && Random.value <= 0.2f && this != controladorTorneo.luchadorInstancia1)
         {
             Esquivar();
-            controladorTorneo.MostrarEvento($"{luchadorData.nombre} ha esquivado el ataque!");
+            controladorTorneo.MostrarEvento($"{luchadorData.nombre} has dodged the attack!");
             return;
         }
 
@@ -181,11 +181,11 @@ public class Luchador : MonoBehaviour
         }
 
         // Mostrar el daño recibido
-        controladorTorneo.MostrarEvento($"{luchadorData.nombre} recibe {daño:F1} de daño. Vida restante: {vidaActual:F1}");
+        controladorTorneo.MostrarEvento($"{luchadorData.nombre} takes  {daño:F1} damage. Remaining life: {vidaActual:F1}");
 
         if (vidaActual <= 0)
         {
-            controladorTorneo.MostrarEvento($"{luchadorData.nombre} ha sido derrotado!");
+            controladorTorneo.MostrarEvento($"{luchadorData.nombre} has been defeated!");
         }
 
         // Deformación exagerada al recibir golpe

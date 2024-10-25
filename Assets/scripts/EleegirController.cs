@@ -43,6 +43,7 @@ public class EleegirController : MonoBehaviour
         {
             Debug.LogError("No se encontró ningún GameObject con el tag 'efectos'.");
         }
+        textoKi.text = "Ki: " + ki + "/" + GameManager.instance.jugadorActual.energiaMaxima;
     }
 
     private void Update()

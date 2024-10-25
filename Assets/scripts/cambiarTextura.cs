@@ -12,6 +12,11 @@ public class cambiarTextura : MonoBehaviour
 
     public void volverMenu()
     {
+        TournamentData.rondaActual = 0;
+        GameManager.instance.jugadorActual = null;
+        GameManager.instance.esFinal = false;
+        GameManager.instance.oponenteActual = null;
+        GameManager.instance.rondaActual = 0;
         SceneManager.LoadScene("Main");
     }
 }

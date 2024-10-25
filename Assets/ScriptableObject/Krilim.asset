@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Krilim
   m_EditorClassIdentifier: 
   nombre: Krilim
-  fuerza: 28
+  fuerza: 60
   velocidad: 56
   resistencia: 79
   vidaMaxima: 100

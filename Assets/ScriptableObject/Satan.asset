@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Satan
   m_EditorClassIdentifier: 
   nombre: Satan
-  fuerza: 35
-  velocidad: 32.4
+  fuerza: 46.2
+  velocidad: 100
   resistencia: 25
   vidaMaxima: 100
   energiaMaxima: 10

@@ -113,7 +113,7 @@ public class EnfrentamientoController : MonoBehaviour
         }
 
         // Preparar el siguiente enfrentamiento
-        oponenteActual++;
+        //oponenteActual++;
         TournamentData.rondaActual++;
         MostrarEnfrentamiento();
         StartCoroutine(EsperarYCargarCombate());

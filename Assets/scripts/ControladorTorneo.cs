@@ -144,13 +144,12 @@ public class ControladorTorneo : MonoBehaviour
         // Mostrar el ganador
         if (!luchadorInstancia1.EstaVivo())
         {
-            MostrarEvento($"{luchadorInstancia2.luchadorData.nombre} ha ganado!");
+            
             yield return new WaitForSeconds(2f);
             SceneManager.LoadScene("DerrotaScene");
         }
         else
         {
-            MostrarEvento($"{luchadorInstancia1.luchadorData.nombre} ha ganado!");
             yield return new WaitForSeconds(2f);
             if (GameManager.instance.esFinal)
             {
@@ -189,7 +188,7 @@ public class ControladorTorneo : MonoBehaviour
         else if (accion == "esquivar")
         {
             // El jugador esquiva
-            MostrarEvento($"{luchador1.luchadorData.nombre} se prepara para esquivar.");
+            MostrarEvento($"{luchador1.luchadorData.nombre} prepares to dodge.");
             luchador1.PrepararEsquivar();
             yield return new WaitForSeconds(1f);
         }

@@ -77,7 +77,7 @@ public class Luchador : MonoBehaviour
     private IEnumerator RealizarAtaque(Luchador oponente)
     {
         estaAtacando = true;
-        controladorTorneo.MostrarEvento($"{luchadorData.nombre} ataca a {oponente.luchadorData.nombre}");
+        controladorTorneo.MostrarEvento($"{luchadorData.nombre} attacks {oponente.luchadorData.nombre}");
         yield return StartCoroutine(DeformarCubo(true, 0.1f));
 
         if (Random.value <= 0.20f && this != controladorTorneo.luchadorInstancia1)

@@ -174,10 +174,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 949459191af141046962ae80adbd500f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  luchador: {fileID: 11400000, guid: 323bb2ed84fc2fd45a680e3f0d121a57, type: 2}
+  luchador: {fileID: 11400000, guid: 0b3264fbc9ff45f4cb998d8d336bf909, type: 2}
   cuboPrefab: {fileID: 1604415600861330257, guid: f3f69678c50e2bf42ba43af91c6cfa63, type: 3}
   personajeCamera: {fileID: 1266231280}
-  cuboInstanciado: {fileID: 0}
   puntoDeRespawn: {fileID: 1330999316}
 --- !u!114 &70686787
 MonoBehaviour:
@@ -321,10 +320,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 949459191af141046962ae80adbd500f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  luchador: {fileID: 11400000, guid: 01180c5df5530844287cb19dea94af95, type: 2}
+  luchador: {fileID: 11400000, guid: ff7d0f47dbb01394887c5e3fe1a35f64, type: 2}
   cuboPrefab: {fileID: 1604415600861330257, guid: f3f69678c50e2bf42ba43af91c6cfa63, type: 3}
   personajeCamera: {fileID: 1266231280}
-  cuboInstanciado: {fileID: 0}
   puntoDeRespawn: {fileID: 1330999316}
 --- !u!114 &134753636
 MonoBehaviour:
@@ -971,7 +969,6 @@ MonoBehaviour:
   luchador: {fileID: 11400000, guid: e218ba58c464df5479f7e51f6282aa54, type: 2}
   cuboPrefab: {fileID: 1604415600861330257, guid: f3f69678c50e2bf42ba43af91c6cfa63, type: 3}
   personajeCamera: {fileID: 1266231280}
-  cuboInstanciado: {fileID: 0}
   puntoDeRespawn: {fileID: 1330999316}
 --- !u!114 &358770698
 MonoBehaviour:
@@ -1999,7 +1996,6 @@ MonoBehaviour:
   luchador: {fileID: 11400000, guid: 5ccdd86d88f3c4249a5506352a629f50, type: 2}
   cuboPrefab: {fileID: 1604415600861330257, guid: f3f69678c50e2bf42ba43af91c6cfa63, type: 3}
   personajeCamera: {fileID: 1266231280}
-  cuboInstanciado: {fileID: 0}
   puntoDeRespawn: {fileID: 1330999316}
 --- !u!1 &825136906
 GameObject:
@@ -2101,10 +2097,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 949459191af141046962ae80adbd500f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  luchador: {fileID: 11400000, guid: d25ffdee8bf78f44cbed7ee10b1eaf05, type: 2}
+  luchador: {fileID: 11400000, guid: c648ff3dac114a640b9a87c074750167, type: 2}
   cuboPrefab: {fileID: 1604415600861330257, guid: f3f69678c50e2bf42ba43af91c6cfa63, type: 3}
   personajeCamera: {fileID: 1266231280}
-  cuboInstanciado: {fileID: 0}
   puntoDeRespawn: {fileID: 1330999316}
 --- !u!114 &847951897
 MonoBehaviour:
@@ -2251,7 +2246,6 @@ MonoBehaviour:
   luchador: {fileID: 11400000, guid: 0ec3e59dd5793a141b95c9e81a97756e, type: 2}
   cuboPrefab: {fileID: 1604415600861330257, guid: f3f69678c50e2bf42ba43af91c6cfa63, type: 3}
   personajeCamera: {fileID: 1266231280}
-  cuboInstanciado: {fileID: 0}
   puntoDeRespawn: {fileID: 1330999316}
 --- !u!114 &883870739
 MonoBehaviour:
@@ -3017,10 +3011,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 949459191af141046962ae80adbd500f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  luchador: {fileID: 11400000, guid: 67089adc8814d7e428aef74dc3448b48, type: 2}
+  luchador: {fileID: 11400000, guid: 2c143d594a49f264eb4f93b6db1fc722, type: 2}
   cuboPrefab: {fileID: 1604415600861330257, guid: f3f69678c50e2bf42ba43af91c6cfa63, type: 3}
   personajeCamera: {fileID: 1266231280}
-  cuboInstanciado: {fileID: 0}
   puntoDeRespawn: {fileID: 1330999316}
 --- !u!114 &1342932771
 MonoBehaviour:
@@ -3356,6 +3349,7 @@ MonoBehaviour:
   jugadorActual: {fileID: 0}
   oponenteActual: {fileID: 0}
   rondaActual: 0
+  esFinal: 0
 --- !u!4 &1469278445
 Transform:
   m_ObjectHideFlags: 0
@@ -4087,7 +4081,6 @@ MonoBehaviour:
   luchador: {fileID: 11400000, guid: b49962b233405e84c8fe7cddd618012e, type: 2}
   cuboPrefab: {fileID: 1604415600861330257, guid: f3f69678c50e2bf42ba43af91c6cfa63, type: 3}
   personajeCamera: {fileID: 1266231280}
-  cuboInstanciado: {fileID: 0}
   puntoDeRespawn: {fileID: 1330999316}
 --- !u!114 &1834679389
 MonoBehaviour:

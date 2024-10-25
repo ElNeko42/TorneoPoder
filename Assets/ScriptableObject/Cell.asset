@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: Cell
   m_EditorClassIdentifier: 
   nombre: Cell
-  fuerza: 61.4
-  velocidad: 47.6
-  resistencia: 40
+  fuerza: 99
+  velocidad: 85
+  resistencia: 65
   vidaMaxima: 100
+  energiaMaxima: 4
   imagen: {fileID: 2800000, guid: 500a5466ef518a847b58ed1eb76eda6e, type: 3}

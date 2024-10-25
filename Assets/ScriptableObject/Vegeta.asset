@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: Vegeta
   m_EditorClassIdentifier: 
   nombre: Vegeta
-  fuerza: 80
+  fuerza: 70
   velocidad: 75
-  resistencia: 65
+  resistencia: 75
   vidaMaxima: 100
+  energiaMaxima: 5
   imagen: {fileID: 2800000, guid: 646ddee7e8cc52e4f93fd8f9ab324920, type: 3}

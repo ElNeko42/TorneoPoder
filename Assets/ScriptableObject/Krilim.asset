@@ -17,4 +17,5 @@ MonoBehaviour:
   velocidad: 56
   resistencia: 79
   vidaMaxima: 100
+  energiaMaxima: 5
   imagen: {fileID: 2800000, guid: 72648fa72a002d941ba08c7d269c490e, type: 3}

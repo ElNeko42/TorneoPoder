@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: freezer
   m_EditorClassIdentifier: 
   nombre: freezer
-  fuerza: 53.8
-  velocidad: 71.7
-  resistencia: 71.7
+  fuerza: 88
+  velocidad: 88
+  resistencia: 55
   vidaMaxima: 100
+  energiaMaxima: 6
   imagen: {fileID: 2800000, guid: 4f8b0572dad3dff4c89e752e00c03e32, type: 3}

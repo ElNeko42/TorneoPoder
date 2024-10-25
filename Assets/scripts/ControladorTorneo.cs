@@ -152,7 +152,14 @@ public class ControladorTorneo : MonoBehaviour
         {
             MostrarEvento($"{luchadorInstancia1.luchadorData.nombre} ha ganado!");
             yield return new WaitForSeconds(2f);
-            SceneManager.LoadScene("VSScene");
+            if (GameManager.instance.esFinal)
+            {
+                SceneManager.LoadScene("VictoriaScene");
+            }
+            else
+            { 
+                SceneManager.LoadScene("VSScene");
+            }
         }
     }
 

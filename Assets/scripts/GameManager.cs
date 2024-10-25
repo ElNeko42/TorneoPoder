@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class GameManager : MonoBehaviour
     public LuchadorData oponenteActual;
     public int rondaActual = 0;
     private AudioSource audioSourceEfectos;
+    public bool esFinal=false;
 
     private void Awake()
     {
@@ -30,4 +32,6 @@ public class GameManager : MonoBehaviour
         jugadorActual = jugador;
         oponenteActual = oponente;
     }
+
+
 }

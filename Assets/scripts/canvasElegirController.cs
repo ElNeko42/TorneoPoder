@@ -38,6 +38,7 @@ public class canvasElegirController : MonoBehaviour
     {
         if (GameManager.instance.jugadorActual != null)
         {
+            GameManager.instance.esFinal = false;
             SceneManager.LoadScene("VSScene");
         }
     }

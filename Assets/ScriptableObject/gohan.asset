@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: gohan
   m_EditorClassIdentifier: 
   nombre: Gohan
-  fuerza: 56.6
+  fuerza: 72
   velocidad: 62.1
-  resistencia: 62.1
+  resistencia: 88
   vidaMaxima: 100
+  energiaMaxima: 6
   imagen: {fileID: 2800000, guid: 607e72943cc5581449983b47f28db750, type: 3}

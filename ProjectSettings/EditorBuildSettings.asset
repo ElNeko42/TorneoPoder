@@ -6,9 +6,18 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/Main.unity
+    guid: b3a53950458e4514c8980f384d54d022
+  - enabled: 1
     path: Assets/Scenes/VSScene.unity
     guid: 56ac75a233ccad54a90c87d6b0aaf77a
   - enabled: 1
     path: Assets/Scenes/CombateScene.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 1
+    path: Assets/Scenes/VictoriaScene.unity
+    guid: ea2a96f4cf8c84941929bce9cc545f90
+  - enabled: 1
+    path: Assets/Scenes/DerrotaScene.unity
+    guid: af1f631bd49a890459b9e2c144a55697
   m_configObjects: {}

@@ -100,18 +100,24 @@ public class EnfrentamientoController : MonoBehaviour
     // Método para continuar con el siguiente enfrentamiento o mostrar la victoria
     public void SiguienteEnfrentamiento()
     {
-        if (oponenteActual + 1 < TournamentData.luchadoresRestantes.Count)
+        // Verificar si este es el último combate
+        if (oponenteActual + 1 >= TournamentData.luchadoresRestantes.Count)
         {
-            oponenteActual++;
-            TournamentData.rondaActual++;
-            MostrarEnfrentamiento();
-            StartCoroutine(EsperarYCargarCombate());
+            // Este es el último combate; no hay más combates después
+            GameManager.instance.esFinal = true;
         }
         else
         {
-            // El jugador ha ganado el torneo, mostrar la escena de victoria
-            SceneManager.LoadScene("VictoriaScene");
+            // Todavía hay más combates después de este
+            GameManager.instance.esFinal = false;
         }
+
+        // Preparar el siguiente enfrentamiento
+        oponenteActual++;
+        TournamentData.rondaActual++;
+        MostrarEnfrentamiento();
+        StartCoroutine(EsperarYCargarCombate());
     }
+
 
 }

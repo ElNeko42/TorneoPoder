@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: Piccolo
   m_EditorClassIdentifier: 
   nombre: Piccolo
-  fuerza: 66
+  fuerza: 65
   velocidad: 27
   resistencia: 91
   vidaMaxima: 100
+  energiaMaxima: 6
   imagen: {fileID: 2800000, guid: c9bccc29cf1ff134386afadf4ac2ab4d, type: 3}

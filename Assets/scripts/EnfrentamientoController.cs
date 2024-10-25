@@ -18,6 +18,10 @@ public class EnfrentamientoController : MonoBehaviour
     public TextMeshProUGUI nombreJugador1;
     public TextMeshProUGUI nombreJugador2;
 
+    private void Awake()
+    {
+        jugador = GameManager.instance.jugadorActual;
+    }
     void Start()
     {
         if (GameManager.instance.rondaActual == 0)

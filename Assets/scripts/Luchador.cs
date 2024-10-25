@@ -14,16 +14,20 @@ public class Luchador : MonoBehaviour
     private bool estaDeformando = false;
     public Transform puntoKi; // Punto donde se lanzará la bola de energía
     public GameObject ataqueEspecialPrefab; // Prefab de la bola de energía
-
+    private AudioSource audioSourceEfectos;
+    public AudioClip[] sonidoGolpes;
+    public AudioClip sonidoAtaqueEspecial;
+    public AudioClip sonidoEsquivar;
     public bool preparadoParaEsquivar = false;
 
     void Start()
     {
+        // Inicializar variables de vida y posición
         vidaActual = luchadorData.vidaMaxima;
         posicionInicial = transform.position;
-        escalaOriginal = transform.localScale; // Almacenar la escala original
+        escalaOriginal = transform.localScale;
 
-        // Buscar el transform del hijo con el tag "ki"
+        // Configurar punto de lanzamiento de Ki
         foreach (Transform child in transform)
         {
             if (child.CompareTag("ki"))
@@ -38,17 +42,30 @@ public class Luchador : MonoBehaviour
             Debug.LogError("No se encontró ningún hijo con el tag 'ki'. Asegúrate de que el punto está correctamente asignado.");
         }
 
-        // Asignar la imagen al material del cubo
+        // Configurar el material de imagen del luchador
         Renderer renderer = GetComponent<Renderer>();
         if (renderer != null && luchadorData.imagen != null)
         {
-            // Crear una instancia del material para evitar modificar el material original
             renderer.material = new Material(renderer.material);
             renderer.material.mainTexture = luchadorData.imagen;
         }
+
+        // Buscar el GameObject con el tag "efectos" para asignar audioSourceEfectos
+        GameObject efectosObj = GameObject.FindGameObjectWithTag("efectos");
+        if (efectosObj != null)
+        {
+            audioSourceEfectos = efectosObj.GetComponent<AudioSource>();
+            if (audioSourceEfectos == null)
+            {
+                Debug.LogError("No se encontró un AudioSource en el GameObject con el tag 'efectos'.");
+            }
+        }
+        else
+        {
+            Debug.LogError("No se encontró ningún GameObject con el tag 'efectos'.");
+        }
     }
 
-    // Función que inicia el ataque
     public IEnumerator Atacar(Luchador oponente)
     {
         if (!estaAtacando)
@@ -57,74 +74,46 @@ public class Luchador : MonoBehaviour
         }
     }
 
-    // Corrutina para manejar la animación del ataque
     private IEnumerator RealizarAtaque(Luchador oponente)
     {
         estaAtacando = true;
-        // Establecer el enfoque de la cámara en este luchador antes de atacar
-        // Camera.main.GetComponent<CameraController>().EstablecerObjetivo(transform);
-
-        // Mostrar evento de ataque
         controladorTorneo.MostrarEvento($"{luchadorData.nombre} ataca a {oponente.luchadorData.nombre}");
-
-        // Deformación exagerada durante el ataque
         yield return StartCoroutine(DeformarCubo(true, 0.1f));
 
-        if (Random.value <= 0.20f && this != controladorTorneo.luchadorInstancia1) // Solo el oponente usa probabilidad para ataque especial
+        if (Random.value <= 0.20f && this != controladorTorneo.luchadorInstancia1)
         {
-            // Si lanza un ataque especial (bola de energía), no se mueve hacia el oponente
-            LanzarAtaqueEspecial(oponente); // Lanza la bola de energía
+            LanzarAtaqueEspecial(oponente);
         }
         else
         {
-            // Solo se mueve hacia el oponente si no lanza un ataque especial
             float tiempoMovimiento = 0.3f;
             yield return StartCoroutine(MoverHacia(posicionAtaque, tiempoMovimiento));
 
-            // Agregar una pequeña rotación rápida al final del ataque físico
             Quaternion rotacionOriginal = transform.rotation;
             Quaternion rotacionAtacando = Quaternion.Euler(0, 0, Random.Range(-20f, 20f));
             transform.rotation = rotacionAtacando;
-
-            // Mirar hacia el oponente
             transform.LookAt(oponente.transform.position);
-
-            // Calcular la dirección del ataque físico
             Vector3 direccionAtaque = (oponente.transform.position - transform.position).normalized;
 
-            // Aplicar el ataque al oponente con la dirección
             oponente.RecibirGolpe(luchadorData.fuerza, direccionAtaque, false);
 
-            // Revertir la deformación y rotación al regresar
             yield return StartCoroutine(DeformarCubo(false, 0.1f));
             transform.rotation = rotacionOriginal;
-
-            // Regresar a la posición inicial
-            yield return new WaitForSeconds(0.2f); // Tiempo de espera más corto
             yield return StartCoroutine(MoverHacia(posicionInicial, tiempoMovimiento));
         }
 
         estaAtacando = false;
-
-        // Actualizar la barra de vida después de atacar
         controladorTorneo.ActualizarBarraVida(this);
     }
 
-    // Función para lanzar la bola de energía
     private void LanzarAtaqueEspecial(Luchador oponente)
     {
         GameObject ataqueEspecial = Instantiate(ataqueEspecialPrefab, puntoKi.position, Quaternion.identity);
         Vector3 direccion = (oponente.transform.position - puntoKi.position).normalized;
         ataqueEspecial.GetComponent<Rigidbody>().velocity = direccion * 50f;
 
-        // Hacer que la cámara enfoque a la bola de energía
-        // Camera.main.GetComponent<CameraController>().EstablecerObjetivo(ataqueEspecial.transform);
-
-        // Añadir lógica para destruir la bola y aplicar el daño especial
-        ataqueEspecial.AddComponent<BolaEnergia>().Inicializar(oponente, luchadorData.fuerza * 2); // Daño duplicado
-
-        // Enviar el golpe como ataque especial (true)
-        oponente.RecibirGolpe(luchadorData.fuerza * 2, direccion, true); // El tercer parámetro es true porque es un ataque especial
+        ataqueEspecial.AddComponent<BolaEnergia>().Inicializar(oponente, luchadorData.fuerza * 2);
+        oponente.RecibirGolpe(luchadorData.fuerza * 2, direccion, true);
     }
 
     public IEnumerator AtacarEspecial(Luchador oponente)
@@ -132,21 +121,14 @@ public class Luchador : MonoBehaviour
         if (!estaAtacando)
         {
             estaAtacando = true;
-            // Establecer el enfoque de la cámara en este luchador antes de atacar
-            // Camera.main.GetComponent<CameraController>().EstablecerObjetivo(transform);
-
-            // Mostrar evento de ataque especial
             controladorTorneo.MostrarEvento($"{luchadorData.nombre} lanza un ataque especial a {oponente.luchadorData.nombre}");
-
-            // Lanzar el ataque especial
+            if (audioSourceEfectos != null && sonidoAtaqueEspecial != null)
+            {
+                audioSourceEfectos.PlayOneShot(sonidoAtaqueEspecial);
+            }
             LanzarAtaqueEspecial(oponente);
-
-            // Esperar un tiempo para que el ataque especial tenga efecto
             yield return new WaitForSeconds(1f);
-
             estaAtacando = false;
-
-            // Actualizar la barra de vida después de atacar
             controladorTorneo.ActualizarBarraVida(this);
         }
     }
@@ -155,14 +137,12 @@ public class Luchador : MonoBehaviour
     {
         Vector3 inicio = transform.position;
         float tiempoTranscurrido = 0f;
-
         while (tiempoTranscurrido < tiempo)
         {
             transform.position = Vector3.Lerp(inicio, objetivo, tiempoTranscurrido / tiempo);
             tiempoTranscurrido += Time.deltaTime;
             yield return null;
         }
-
         transform.position = objetivo;
     }
 
@@ -172,7 +152,7 @@ public class Luchador : MonoBehaviour
         {
             Esquivar();
             controladorTorneo.MostrarEvento($"{luchadorData.nombre} ha esquivado el ataque!");
-            preparadoParaEsquivar = false; // Resetear el flag después de esquivar
+            preparadoParaEsquivar = false;
             return;
         }
         else if (!esAtaqueEspecial && Random.value <= 0.2f && this != controladorTorneo.luchadorInstancia1)
@@ -188,6 +168,18 @@ public class Luchador : MonoBehaviour
         vidaActual -= daño;
         vidaActual = Mathf.Max(0, vidaActual);
 
+        // Reproducir sonido de golpe
+        if (sonidoGolpes != null && sonidoGolpes.Length > 0 && audioSourceEfectos != null)
+        {
+            int indiceAleatorio = Random.Range(0, sonidoGolpes.Length);
+            AudioClip sonidoSeleccionado = sonidoGolpes[indiceAleatorio];
+            audioSourceEfectos.PlayOneShot(sonidoSeleccionado);
+        }
+        else
+        {
+            Debug.LogWarning("AudioSource o sonidoGolpes no asignado correctamente.");
+        }
+
         // Mostrar el daño recibido
         controladorTorneo.MostrarEvento($"{luchadorData.nombre} recibe {daño:F1} de daño. Vida restante: {vidaActual:F1}");
 
@@ -200,18 +192,24 @@ public class Luchador : MonoBehaviour
         StartCoroutine(DeformarCubo(true, 0.1f));
 
         // Limitar la fuerza aplicada para que el luchador no sea empujado demasiado lejos
-        Vector3 fuerzaExagerada = direccionAtaque * luchadorData.fuerza * 1.5f; // Aplicar fuerza
-        fuerzaExagerada = Vector3.ClampMagnitude(fuerzaExagerada, 5f); // Limitar la magnitud de la fuerza a 5 unidades
+        Vector3 fuerzaExagerada = Vector3.ClampMagnitude(direccionAtaque * luchadorData.fuerza * 1.5f, 5f);
 
-        rb.AddForce(fuerzaExagerada, ForceMode.Impulse);
+        if (rb != null)
+        {
+            rb.AddForce(fuerzaExagerada, ForceMode.Impulse);
+        }
+        else
+        {
+            Debug.LogWarning("Rigidbody (rb) no asignado en el Luchador.");
+        }
 
         // Revertir la deformación después de un tiempo corto
         StartCoroutine(DeformarCubo(false, 0.1f));
 
         // Actualizar barra de vida
         controladorTorneo.ActualizarBarraVida(this);
-        // Camera.main.GetComponent<CameraController>().StartCoroutine(Camera.main.GetComponent<CameraController>().TemblorCamara(0.2f, 0.3f));
     }
+
 
     public bool EstaVivo()
     {
@@ -220,11 +218,11 @@ public class Luchador : MonoBehaviour
 
     private IEnumerator DeformarCubo(bool estirando, float duracion)
     {
-        if (estaDeformando) yield break; // Evitar deformaciones superpuestas
+        if (estaDeformando) yield break;
         estaDeformando = true;
 
         Vector3 escalaObjetivo = estirando
-            ? new Vector3(escalaOriginal.x * 1.2f, escalaOriginal.y * 0.8f, escalaOriginal.z * 1.5f)  // Exagerar estiramiento
+            ? new Vector3(escalaOriginal.x * 1.2f, escalaOriginal.y * 0.8f, escalaOriginal.z * 1.5f)
             : escalaOriginal;
 
         Vector3 escalaInicialDeformada = transform.localScale;
@@ -252,14 +250,17 @@ public class Luchador : MonoBehaviour
     private IEnumerator RealizarEsquiva()
     {
         estaAtacando = true;
-
         Vector3 direccionEsquiva = Vector3.back * 2f;
         Vector3 posicionObjetivo = transform.position + direccionEsquiva;
         float tiempoMovimiento = 0.3f;
         yield return StartCoroutine(MoverHacia(posicionObjetivo, tiempoMovimiento));
-
         yield return new WaitForSeconds(0.5f);
         yield return StartCoroutine(MoverHacia(posicionInicial, tiempoMovimiento));
+
+        if (audioSourceEfectos != null && sonidoEsquivar != null)
+        {
+            audioSourceEfectos.PlayOneShot(sonidoEsquivar);
+        }
 
         estaAtacando = false;
     }
@@ -277,10 +278,10 @@ public class Luchador : MonoBehaviour
     public void ResetearEstado(LuchadorData nuevoLuchadorData)
     {
         luchadorData = nuevoLuchadorData;
-        vidaActual = luchadorData.vidaMaxima; // Restablecer la vida
-        transform.position = posicionInicial; // Volver a la posición inicial
-        transform.localScale = escalaOriginal; // Restablecer la escala original
-        GetComponent<Renderer>().material.mainTexture = luchadorData.imagen; // Actualizar la imagen del luchador, si es necesario
-        rb.velocity = Vector3.zero; // Detener cualquier movimiento anterior
+        vidaActual = luchadorData.vidaMaxima;
+        transform.position = posicionInicial;
+        transform.localScale = escalaOriginal;
+        GetComponent<Renderer>().material.mainTexture = luchadorData.imagen;
+        if (rb != null) rb.velocity = Vector3.zero;
     }
 }

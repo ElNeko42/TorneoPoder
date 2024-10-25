@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviour
     public LuchadorData jugadorActual;
     public LuchadorData oponenteActual;
     public int rondaActual = 0;
-    
+    private AudioSource audioSourceEfectos;
 
     private void Awake()
     {

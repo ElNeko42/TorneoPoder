@@ -158,6 +158,12 @@ MonoBehaviour:
   posicionAtaque: {x: 0, y: 0, z: 0}
   puntoKi: {fileID: 1570876138465042180}
   ataqueEspecialPrefab: {fileID: 5597114446078348812, guid: e7cd5777c18235f46aed07e793a91ff7, type: 3}
+  sonidoGolpes:
+  - {fileID: 8300000, guid: 070feb47f20508c498b0eebcf6e086ce, type: 3}
+  - {fileID: 8300000, guid: 4c4ad75b67173974e9c988fb36be17af, type: 3}
+  sonidoAtaqueEspecial: {fileID: 8300000, guid: 36e482bf3f11bf943a4de0f4da00deeb, type: 3}
+  sonidoEsquivar: {fileID: 8300000, guid: 2410326423a3bc1408f48495001c3f4c, type: 3}
+  preparadoParaEsquivar: 0
 --- !u!54 &3383441645479605256
 Rigidbody:
   m_ObjectHideFlags: 0

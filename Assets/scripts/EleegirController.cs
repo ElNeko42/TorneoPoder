@@ -19,6 +19,8 @@ public class EleegirController : MonoBehaviour
 
     public List<string> accionesSeleccionadas = new List<string>();
     public bool accionesListas = false;
+    private AudioSource audioSourceEfectos;
+    public AudioClip sonidoEscoger;
 
     private void Awake()
     {
@@ -26,6 +28,20 @@ public class EleegirController : MonoBehaviour
         {
             slot.enabled = false;
             slot.texture = null;
+        }
+        // Buscar el GameObject con el tag "efectos" para asignar audioSourceEfectos
+        GameObject efectosObj = GameObject.FindGameObjectWithTag("efectos");
+        if (efectosObj != null)
+        {
+            audioSourceEfectos = efectosObj.GetComponent<AudioSource>();
+            if (audioSourceEfectos == null)
+            {
+                Debug.LogError("No se encontró un AudioSource en el GameObject con el tag 'efectos'.");
+            }
+        }
+        else
+        {
+            Debug.LogError("No se encontró ningún GameObject con el tag 'efectos'.");
         }
     }
 
@@ -81,7 +97,6 @@ public class EleegirController : MonoBehaviour
             // No hay suficiente ki
             return;
         }
-
         // Encontrar el siguiente slot disponible
         int slotIndex = -1;
         for (int i = 0; i < slotsAcciones.Length; i++)
@@ -108,7 +123,7 @@ public class EleegirController : MonoBehaviour
 
         // Actualizar el texto de ki
         ActualizarTextoKi();
-
+        audioSourceEfectos.PlayOneShot(sonidoEscoger);
         // Agregar la acción seleccionada a la lista
         accionesSeleccionadas.Add(accionNombre);
     }

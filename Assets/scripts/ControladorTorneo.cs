@@ -20,8 +20,8 @@ public class ControladorTorneo : MonoBehaviour
     // Referencias a las barras de vida y las imágenes de los luchadores
     public RawImage imagenLuchador1Barra;
     public RawImage imagenLuchador2Barra;
-    public ProgressBarInspectorTest barraLuchador1;
-    public ProgressBarInspectorTest barraLuchador2;
+    public ProgressBar barraLuchador1; // Cambiado a ProgressBar
+    public ProgressBar barraLuchador2; // Cambiado a ProgressBar
 
     public EleegirController elegirController; // Asigna esto desde el inspector
     private List<string> movimientosJugador;
@@ -50,9 +50,6 @@ public class ControladorTorneo : MonoBehaviour
 
         // Preparar el combate con los datos del jugador y del oponente
         yield return StartCoroutine(PrepararCombate(jugadorData, oponenteData));
-
-        // Mostrar mensaje de ganador
-        textoRonda.text = "¡El ganador del torneo es " + jugadorData.nombre + "!";
     }
 
     private IEnumerator PrepararCombate(LuchadorData luchador1Data, LuchadorData luchador2Data)
@@ -67,6 +64,11 @@ public class ControladorTorneo : MonoBehaviour
         // Asignarles los datos del ScriptableObject
         luchadorInstancia1.luchadorData = luchador1Data;
         luchadorInstancia2.luchadorData = luchador2Data;
+
+        // Inicializar la vida de los luchadores
+        luchadorInstancia1.Inicializar();
+        luchadorInstancia2.Inicializar();
+
 
         // Asignar referencia al controlador para ambos luchadores
         luchadorInstancia1.controladorTorneo = this;
@@ -144,7 +146,6 @@ public class ControladorTorneo : MonoBehaviour
         // Mostrar el ganador
         if (!luchadorInstancia1.EstaVivo())
         {
-            
             yield return new WaitForSeconds(2f);
             SceneManager.LoadScene("DerrotaScene");
         }
@@ -156,7 +157,7 @@ public class ControladorTorneo : MonoBehaviour
                 SceneManager.LoadScene("VictoriaScene");
             }
             else
-            { 
+            {
                 SceneManager.LoadScene("VSScene");
             }
         }
@@ -204,12 +205,12 @@ public class ControladorTorneo : MonoBehaviour
     {
         if (barraLuchador1 != null && luchador == luchadorInstancia1)
         {
-            barraLuchador1.progress = luchador.GetHealthPercent();
+            barraLuchador1.SetProgress(luchador.GetHealthPercent());
         }
 
         if (barraLuchador2 != null && luchador == luchadorInstancia2)
         {
-            barraLuchador2.progress = luchador.GetHealthPercent();
+            barraLuchador2.SetProgress(luchador.GetHealthPercent());
         }
     }
 }

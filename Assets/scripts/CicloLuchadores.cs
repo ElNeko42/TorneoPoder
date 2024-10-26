@@ -30,10 +30,24 @@ public class CicloLuchadores : MonoBehaviour
 
             // Asignar los datos del ScriptableObject al luchador
             Luchador luchadorScript = luchadorInstancia.GetComponent<Luchador>();
-            luchadorScript.luchadorData = listaLuchadores[indiceLuchadorActual];
+            LuchadorData luchadorDataActual = listaLuchadores[indiceLuchadorActual];
+            luchadorScript.luchadorData = luchadorDataActual;
 
             // Aumentar el índice del luchador actual (circular)
             indiceLuchadorActual = (indiceLuchadorActual + 1) % listaLuchadores.Length;
+
+            // Aplicar la textura del LuchadorData al modelo
+            Renderer renderer = luchadorInstancia.GetComponent<Renderer>();
+            if (renderer != null && luchadorDataActual.imagen != null)
+            {
+                // Clonar el material para evitar modificar el material original
+                renderer.material = new Material(renderer.material);
+                renderer.material.mainTexture = luchadorDataActual.imagen;
+            }
+            else
+            {
+                Debug.LogWarning("No se pudo asignar la textura al luchador. Verifica que el prefab tenga un Renderer y que la textura esté asignada en LuchadorData.");
+            }
 
             // Aplicar gravedad para la caída
             Rigidbody rb = luchadorInstancia.GetComponent<Rigidbody>();

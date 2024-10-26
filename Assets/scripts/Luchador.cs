@@ -20,7 +20,8 @@ public class Luchador : MonoBehaviour
     public AudioClip sonidoEsquivar;
     public bool preparadoParaEsquivar = false;
 
-    void Start()
+    // Eliminamos el método Start() y creamos Inicializar()
+    public void Inicializar()
     {
         // Inicializar variables de vida y posición
         vidaActual = luchadorData.vidaMaxima;
@@ -77,7 +78,7 @@ public class Luchador : MonoBehaviour
     private IEnumerator RealizarAtaque(Luchador oponente)
     {
         estaAtacando = true;
-        controladorTorneo.MostrarEvento($"{luchadorData.nombre} attacks {oponente.luchadorData.nombre}");
+        controladorTorneo.MostrarEvento($"{luchadorData.nombre} atacacks {oponente.luchadorData.nombre}");
         yield return StartCoroutine(DeformarCubo(true, 0.1f));
 
         if (Random.value <= 0.20f && this != controladorTorneo.luchadorInstancia1)
@@ -151,14 +152,14 @@ public class Luchador : MonoBehaviour
         if (preparadoParaEsquivar)
         {
             Esquivar();
-            controladorTorneo.MostrarEvento($"{luchadorData.nombre} has dodged the attack!");
+            controladorTorneo.MostrarEvento($"{luchadorData.nombre} has dodged the attack");
             preparadoParaEsquivar = false;
             return;
         }
         else if (!esAtaqueEspecial && Random.value <= 0.2f && this != controladorTorneo.luchadorInstancia1)
         {
             Esquivar();
-            controladorTorneo.MostrarEvento($"{luchadorData.nombre} has dodged the attack!");
+            controladorTorneo.MostrarEvento($"{luchadorData.nombre} has dodged the attack");
             return;
         }
 
@@ -181,7 +182,7 @@ public class Luchador : MonoBehaviour
         }
 
         // Mostrar el daño recibido
-        controladorTorneo.MostrarEvento($"{luchadorData.nombre} takes  {daño:F1} damage. Remaining life: {vidaActual:F1}");
+        controladorTorneo.MostrarEvento($"{luchadorData.nombre} received  {daño:F1} damage. Remaining life: {vidaActual:F1}");
 
         if (vidaActual <= 0)
         {
@@ -209,7 +210,6 @@ public class Luchador : MonoBehaviour
         // Actualizar barra de vida
         controladorTorneo.ActualizarBarraVida(this);
     }
-
 
     public bool EstaVivo()
     {
